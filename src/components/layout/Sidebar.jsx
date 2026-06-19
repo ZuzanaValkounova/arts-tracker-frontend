@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 
 // TODO replace emoji with icon library
 const DEFAULT_ITEMS = [
-	{ to: "/", label: "Dashboard", icon: "🏠", end: true },
+	{ to: "/", label: "Projects", icon: "🏠", end: true },
 	{ to: "/inventory", label: "Inventory", icon: "🧰" },
 	{ to: "/resources", label: "Resources", icon: "🖼️" },
 	{ to: "/statistics", label: "Statistics", icon: "📊" },

@@ -20,12 +20,6 @@ const STAGE_HEIGHT = 600;
 
 const nextZ = (elements) => Math.max(0, ...elements.map((el) => el.z ?? 0)) + 1;
 
-// every element needs x, y, z, width, height, rotation.
-// clicking the canvas with a creation tool emits onElementAdd with defaults:
-//  - text  → default content/font, page may open an edit dialog afterwards
-//  - color → tile in activeColor
-//  - image → emits { type: "image", ...position } and the PAGE opens an upload dialog,
-// drawing strokes are finished by DrawingLayer and emitted as complete elements
 const MoodboardCanvas = ({
 	elements,
 	activeTool,
@@ -34,9 +28,8 @@ const MoodboardCanvas = ({
 	onElementChange,
 	onElementDelete,
 }) => {
-	// the selected element id together with its Konva node, captured from the click event
-	// (refs must not be read during render, so the node travels through state instead)
 	const [selected, setSelected] = useState(null); // { id, node }
+	const [editing, setEditing] = useState(null); // { id, content, x, y, width, fontSize, fontFamily, color }
 
 	const handleStageClick = (e) => {
 		const clickedOnEmpty = e.target === e.target.getStage();
@@ -64,7 +57,6 @@ const MoodboardCanvas = ({
 		} else if (activeTool === "color") {
 			onElementAdd({ type: "color", ...base, width: 80, height: 80, hex: activeColor });
 		} else if (activeTool === "image") {
-			// page completes this with imageFile/imageUrl via an upload dialog
 			onElementAdd({ type: "image", ...base, width: 200, height: 200 });
 		}
 	};
@@ -76,10 +68,33 @@ const MoodboardCanvas = ({
 		[onElementAdd, elements],
 	);
 
+	const handleStartEdit = (element) => {
+		setSelected(null);
+		setEditing({
+			id: element._id,
+			content: element.content,
+			x: element.x,
+			y: element.y,
+			width: element.width || 200,
+			fontSize: element.fontSize,
+			fontFamily: element.fontFamily,
+			color: element.color,
+		});
+	};
+
+	const commitEdit = () => {
+		if (!editing) return;
+		const content = editing.content.trim();
+		const original = elements.find((el) => el._id === editing.id)?.content;
+		if (content && content !== original) {
+			onElementChange(editing.id, { content });
+		}
+		setEditing(null);
+	};
+
 	const activeSelection =
 		selected && elements.some((el) => el._id === selected.id) ? selected : null;
 
-	// Delete/Backspace removes the selected element
 	useEffect(() => {
 		const handleKey = (e) => {
 			if ((e.key === "Delete" || e.key === "Backspace") && activeSelection) {
@@ -94,7 +109,7 @@ const MoodboardCanvas = ({
 	const sortedElements = [...elements].sort((a, b) => (a.z ?? 0) - (b.z ?? 0));
 
 	return (
-		<div className="overflow-auto rounded-lg border border-gray-200 bg-white">
+		<div className="relative overflow-auto rounded-lg border border-gray-200 bg-white">
 			<Stage
 				width={STAGE_WIDTH}
 				height={STAGE_HEIGHT}
@@ -109,10 +124,12 @@ const MoodboardCanvas = ({
 								key={element._id}
 								element={element}
 								isSelected={activeSelection?.id === element._id}
+								isEditing={editing?.id === element._id}
 								onSelect={(e) =>
 									activeTool === "select" && setSelected({ id: element._id, node: e.target })
 								}
 								onChange={(patch) => onElementChange(element._id, patch)}
+								onStartEdit={() => handleStartEdit(element)}
 							/>
 						);
 					})}
@@ -130,6 +147,40 @@ const MoodboardCanvas = ({
 					onDrawEnd={handleDrawEnd}
 				/>
 			</Stage>
+
+			{editing && (
+				<textarea
+					autoFocus
+					value={editing.content}
+					onChange={(e) => setEditing((prev) => ({ ...prev, content: e.target.value }))}
+					onBlur={commitEdit}
+					onKeyDown={(e) => {
+						if (e.key === "Enter" && !e.shiftKey) {
+							e.preventDefault();
+							commitEdit();
+						} else if (e.key === "Escape") {
+							setEditing(null);
+						}
+					}}
+					style={{
+						position: "absolute",
+						left: editing.x,
+						top: editing.y,
+						width: editing.width,
+						fontSize: editing.fontSize,
+						fontFamily: editing.fontFamily,
+						color: editing.color,
+						lineHeight: 1.1,
+						padding: 0,
+						margin: 0,
+						border: "1px solid #3b82f6",
+						outline: "none",
+						background: "white",
+						resize: "none",
+						overflow: "hidden",
+					}}
+				/>
+			)}
 		</div>
 	);
 };

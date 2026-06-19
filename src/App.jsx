@@ -15,7 +15,13 @@ import { TagsPage } from "./pages/TagsPage";
 // import { RegisterPage } from "./pages/RegisterPage";
 import { LoginPage } from "./pages/LoginPage";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			refetchOnWindowFocus: false,
+		},
+	},
+});
 
 const router = createBrowserRouter([
 	{ path: "/login", element: <LoginPage /> },

@@ -1,19 +1,28 @@
 // stats: { projects: <GET /statistics/projects>, tasks: <GET /statistics/tasks> }
 const SummaryCards = ({ stats }) => {
 	const cards = [
-		{ label: "Projects", value: stats.projects?.total ?? 0 },
+		{ label: "Projects", value: stats.projects?.total ?? 0, hint: "all time" },
 		{
 			label: "Success rate",
 			value: `${Math.round(stats.projects?.successRate ?? 0)} %`,
 			hint: "completed / non-archived",
 		},
-		{ label: "Completed in period", value: stats.projects?.completedInPeriod ?? 0 },
 		{
 			label: "Avg. project duration",
 			value: `${stats.projects?.averageDuration?.avgDurationDays ?? 0} d`,
+			hint: "all time",
 		},
-		{ label: "Tasks", value: stats.tasks?.total ?? 0 },
-		{ label: "Tasks completed", value: stats.tasks?.completedCount ?? 0 },
+		{
+			label: "Projects completed",
+			value: stats.projects?.completedInPeriod ?? 0,
+			hint: "in selected period",
+		},
+		{ label: "Tasks", value: stats.tasks?.total ?? 0, hint: "all time" },
+		{
+			label: "Tasks completed",
+			value: stats.tasks?.completedCount ?? 0,
+			hint: "in selected period",
+		},
 	];
 
 	return (

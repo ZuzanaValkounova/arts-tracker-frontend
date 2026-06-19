@@ -1,8 +1,7 @@
 import { Text } from "react-konva";
 
 // element: { _id, type: "text", x, y, z, width, height, rotation, content, fontSize, fontFamily, color }
-// TODO: double-click inline editing (overlay a textarea above the stage, then PATCH content)
-const TextElement = ({ element, isSelected, onSelect, onChange }) => {
+const TextElement = ({ element, isSelected, isEditing, onSelect, onChange, onStartEdit }) => {
 	return (
 		<Text
 			text={element.content}
@@ -14,8 +13,11 @@ const TextElement = ({ element, isSelected, onSelect, onChange }) => {
 			fontFamily={element.fontFamily}
 			fill={element.color}
 			draggable
+			visible={!isEditing}
 			onClick={onSelect}
 			onTap={onSelect}
+			onDblClick={onStartEdit}
+			onDblTap={onStartEdit}
 			onDragEnd={(e) => onChange({ x: e.target.x(), y: e.target.y() })}
 			opacity={isSelected ? 0.9 : 1}
 		/>

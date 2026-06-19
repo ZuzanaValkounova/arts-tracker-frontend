@@ -18,7 +18,7 @@ const defaultFilters = () => {
 	const to = new Date();
 	const from = new Date();
 	from.setDate(to.getDate() - 90);
-	return { from: iso(from), to: iso(to), granularity: "week" };
+	return { from: iso(from), to: iso(to), granularity: "" };
 };
 
 const StatisticsPage = () => {
@@ -46,7 +46,7 @@ const StatisticsPage = () => {
 		queryFn: () =>
 			getTimelineStatistics(token, {
 				...common,
-				granularity: filters.granularity,
+				granularity: filters.granularity || undefined,
 				categoryId: filters.categoryId ?? undefined,
 				projectId: filters.projectId ?? undefined,
 				taskType: filters.taskType ?? undefined,
