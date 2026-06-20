@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ColorPicker } from "../ui/ColorPicker";
+import { ColorPicker } from "../ui/shared/ColorPicker";
 
 const TagForm = ({ initialValues, onSubmit, onCancel, loading, error }) => {
 	const [name, setName] = useState(initialValues?.name ?? "");

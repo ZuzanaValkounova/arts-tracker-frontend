@@ -1,7 +1,7 @@
-import { StatusBadge } from "../ui/StatusBadge";
-import { DifficultyRating } from "../ui/DifficultyRating";
-import { ProgressBar } from "../ui/ProgressBar";
-import { TagChip } from "../ui/TagChip";
+import { StatusBadge } from "../ui/shared/StatusBadge";
+import { DifficultyRating } from "../ui/shared/DifficultyRating";
+import { ProgressBar } from "../ui/shared/ProgressBar";
+import { TagChip } from "../ui/shared/TagChip";
 
 const ProjectCard = ({ project, progress, onOpen, onEdit, onDelete }) => {
 	return (

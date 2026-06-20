@@ -1,4 +1,4 @@
-import { CategoryPicker } from "../ui/CategoryPicker";
+import { CategoryPicker } from "../ui/shared/CategoryPicker";
 
 //  filters: { search, status: wishlist|owned, categoryId }
 const InventoryFilters = ({ filters, onChange, categories = [] }) => {

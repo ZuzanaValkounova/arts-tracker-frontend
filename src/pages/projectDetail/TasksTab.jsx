@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { ViewSwitcher } from "../../components/ui/ViewSwitcher";
-import { Modal } from "../../components/ui/Modal";
-import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
-import { LoadingState } from "../../components/ui/LoadingState";
-import { ErrorState } from "../../components/ui/ErrorState";
+import { ViewSwitcher } from "../../components/ui/shared/ViewSwitcher";
+import { Modal } from "../../components/ui/shared/Modal";
+import { ConfirmDialog } from "../../components/ui/shared/ConfirmDialog";
+import { LoadingState } from "../../components/ui/shared/LoadingState";
+import { ErrorState } from "../../components/ui/shared/ErrorState";
 import { TaskKanbanBoard } from "../../components/task/TaskKanbanBoard";
 import { TaskListView } from "../../components/task/TaskListView";
 import { TaskForm } from "../../components/task/TaskForm";

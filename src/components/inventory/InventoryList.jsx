@@ -1,5 +1,5 @@
 import { InventoryCard } from "./InventoryCard";
-import { EmptyState } from "../ui/EmptyState";
+import { EmptyState } from "../ui/shared/EmptyState";
 
 const InventoryList = ({ items, onEdit, onDelete }) => {
 	if (items.length === 0) {

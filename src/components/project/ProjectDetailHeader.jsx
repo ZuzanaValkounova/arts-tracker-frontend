@@ -1,6 +1,6 @@
-import { ProgressBar } from "../ui/ProgressBar";
-import { DifficultyRating } from "../ui/DifficultyRating";
-import { TagChip } from "../ui/TagChip";
+import { ProgressBar } from "../ui/shared/ProgressBar";
+import { DifficultyRating } from "../ui/shared/DifficultyRating";
+import { TagChip } from "../ui/shared/TagChip";
 import { ProjectStatusControl } from "./ProjectStatusControl";
 
 // progress (0–100) is computed on the FE from the project's tasks

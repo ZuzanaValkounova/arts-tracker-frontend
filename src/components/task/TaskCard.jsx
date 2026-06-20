@@ -1,4 +1,4 @@
-import { PriorityBadge } from "../ui/PriorityBadge";
+import { PriorityBadge } from "../ui/shared/PriorityBadge";
 import { isOverdue } from "../../utils/tasks";
 
 const TaskCard = ({ task, onOpen, dragging = false }) => {

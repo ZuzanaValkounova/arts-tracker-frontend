@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ImageUpload } from "../ui/ImageUpload";
+import { ImageUpload } from "../ui/shared/ImageUpload";
 
 // type=link -> url required; type=image -> file (multipart) or imageUrl
 const ResourceForm = ({ initialValues, projectId, onSubmit, onCancel, loading }) => {

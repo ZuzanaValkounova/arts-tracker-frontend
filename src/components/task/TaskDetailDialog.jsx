@@ -1,6 +1,6 @@
-import { Modal } from "../ui/Modal";
-import { StatusBadge } from "../ui/StatusBadge";
-import { PriorityBadge } from "../ui/PriorityBadge";
+import { Modal } from "../ui/shared/Modal";
+import { StatusBadge } from "../ui/shared/StatusBadge";
+import { PriorityBadge } from "../ui/shared/PriorityBadge";
 import { TaskListView } from "./TaskListView";
 
 // target for onOpen(taskId) from the kanban/list

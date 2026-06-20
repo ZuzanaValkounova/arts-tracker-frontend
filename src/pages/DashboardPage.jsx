@@ -4,13 +4,13 @@ import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 
 import { ProjectsGrid } from "../components/project/ProjectsGrid";
 import { ProjectForm } from "../components/project/ProjectForm";
-import { CategoryPicker } from "../components/ui/CategoryPicker";
-import { TagChip } from "../components/ui/TagChip";
-import { Modal } from "../components/ui/Modal";
-import { ConfirmDialog } from "../components/ui/ConfirmDialog";
-import { LoadingState } from "../components/ui/LoadingState";
-import { ErrorState } from "../components/ui/ErrorState";
-import { EmptyState } from "../components/ui/EmptyState";
+import { CategoryPicker } from "../components/ui/shared/CategoryPicker";
+import { TagChip } from "../components/ui/shared/TagChip";
+import { Modal } from "../components/ui/shared/Modal";
+import { ConfirmDialog } from "../components/ui/shared/ConfirmDialog";
+import { LoadingState } from "../components/ui/shared/LoadingState";
+import { ErrorState } from "../components/ui/shared/ErrorState";
+import { EmptyState } from "../components/ui/shared/EmptyState";
 
 import { getProjects, createProject, updateProject, deleteProject } from "../api/projects";
 import { getCategories } from "../api/categories";

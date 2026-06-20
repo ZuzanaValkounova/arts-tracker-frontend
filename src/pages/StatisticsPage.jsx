@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 
 import { StatsFilters } from "../components/statistics/StatsFilters";
 import { StatisticsDashboard } from "../components/statistics/StatisticsDashboard";
-import { LoadingState } from "../components/ui/LoadingState";
-import { ErrorState } from "../components/ui/ErrorState";
+import { LoadingState } from "../components/ui/shared/LoadingState";
+import { ErrorState } from "../components/ui/shared/ErrorState";
 
 import { getProjectStatistics, getTaskStatistics, getTimelineStatistics } from "../api/statistics";
 import { getCategories } from "../api/categories";

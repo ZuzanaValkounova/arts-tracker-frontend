@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { MaterialsPanel } from "../../components/inventory/MaterialsPanel";
 import { AddMaterialDialog } from "../../components/inventory/AddMaterialDialog";
-import { LoadingState } from "../../components/ui/LoadingState";
-import { ErrorState } from "../../components/ui/ErrorState";
+import { LoadingState } from "../../components/ui/shared/LoadingState";
+import { ErrorState } from "../../components/ui/shared/ErrorState";
 
 import {
 	getProjectMaterials,

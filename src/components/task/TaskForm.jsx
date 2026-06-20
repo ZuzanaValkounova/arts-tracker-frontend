@@ -2,7 +2,7 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { TASK_STATUSES, PRIORITIES, STATUS_META, PRIORITY_META } from "../../utils/constants";
-import { DateField } from "../ui/DateField";
+import { DateField } from "../ui/shared/DateField";
 
 const taskSchema = z.object({
 	name: z.string().min(1, "Name is required").max(200),

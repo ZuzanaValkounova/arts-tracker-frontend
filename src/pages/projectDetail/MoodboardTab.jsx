@@ -3,11 +3,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { MoodboardCanvas } from "../../components/moodboard/MoodboardCanvas";
 import { MoodboardToolbar } from "../../components/moodboard/MoodboardToolbar";
-import { Modal } from "../../components/ui/Modal";
-import { ImageUpload } from "../../components/ui/ImageUpload";
-import { EmptyState } from "../../components/ui/EmptyState";
-import { LoadingState } from "../../components/ui/LoadingState";
-import { ErrorState } from "../../components/ui/ErrorState";
+import { Modal } from "../../components/ui/shared/Modal";
+import { ImageUpload } from "../../components/ui/shared/ImageUpload";
+import { EmptyState } from "../../components/ui/shared/EmptyState";
+import { LoadingState } from "../../components/ui/shared/LoadingState";
+import { ErrorState } from "../../components/ui/shared/ErrorState";
 
 import {
 	getMoodboard,

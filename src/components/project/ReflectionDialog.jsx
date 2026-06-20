@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Modal } from "../ui/Modal";
-import { DifficultyRating } from "../ui/DifficultyRating";
+import { Modal } from "../ui/shared/Modal";
+import { DifficultyRating } from "../ui/shared/DifficultyRating";
 
 const ReflectionDialog = ({ open, initialValues, onSubmit, onClose, loading }) => {
 	const [values, setValues] = useState({

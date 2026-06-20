@@ -2,12 +2,12 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { PROJECT_STATUSES, STATUS_META } from "../../utils/constants";
-import { CategoryPicker } from "../ui/CategoryPicker";
-import { TagPicker } from "../ui/TagPicker";
-import { DifficultyRating } from "../ui/DifficultyRating";
-import { ColorPicker } from "../ui/ColorPicker";
-import { ImageUpload } from "../ui/ImageUpload";
-import { DateField } from "../ui/DateField";
+import { CategoryPicker } from "../ui/shared/CategoryPicker";
+import { TagPicker } from "../ui/shared/TagPicker";
+import { DifficultyRating } from "../ui/shared/DifficultyRating";
+import { ColorPicker } from "../ui/shared/ColorPicker";
+import { ImageUpload } from "../ui/shared/ImageUpload";
+import { DateField } from "../ui/shared/DateField";
 
 const projectSchema = z.object({
 	name: z.string().min(1, "Name is required").max(200),

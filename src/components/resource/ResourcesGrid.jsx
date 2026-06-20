@@ -1,5 +1,5 @@
 import { ResourceCard } from "./ResourceCard";
-import { EmptyState } from "../ui/EmptyState";
+import { EmptyState } from "../ui/shared/EmptyState";
 
 const ResourcesGrid = ({ resources, onDelete }) => {
 	if (resources.length === 0) {

@@ -7,10 +7,10 @@ import { ProjectTabs } from "../components/project/ProjectTabs";
 import { ProjectForm } from "../components/project/ProjectForm";
 import { ReflectionDialog } from "../components/project/ReflectionDialog";
 import { ReflectionCard } from "../components/project/ReflectionCard";
-import { Modal } from "../components/ui/Modal";
-import { ConfirmDialog } from "../components/ui/ConfirmDialog";
-import { LoadingState } from "../components/ui/LoadingState";
-import { ErrorState } from "../components/ui/ErrorState";
+import { Modal } from "../components/ui/shared/Modal";
+import { ConfirmDialog } from "../components/ui/shared/ConfirmDialog";
+import { LoadingState } from "../components/ui/shared/LoadingState";
+import { ErrorState } from "../components/ui/shared/ErrorState";
 
 import { TasksTab } from "./projectDetail/TasksTab";
 import { MoodboardTab } from "./projectDetail/MoodboardTab";

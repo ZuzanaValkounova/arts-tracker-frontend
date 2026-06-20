@@ -1,5 +1,5 @@
 import { TaskItem } from "./TaskItem";
-import { EmptyState } from "../ui/EmptyState";
+import { EmptyState } from "../ui/shared/EmptyState";
 import { buildTaskTree } from "../../utils/tasks";
 
 // list view incl. subtasks; expects flat task array

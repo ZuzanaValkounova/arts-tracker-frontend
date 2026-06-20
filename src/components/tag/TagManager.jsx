@@ -1,9 +1,9 @@
 import { useState } from "react";
 
-import { TagChip } from "../ui/TagChip";
-import { Modal } from "../ui/Modal";
-import { ConfirmDialog } from "../ui/ConfirmDialog";
-import { EmptyState } from "../ui/EmptyState";
+import { TagChip } from "../ui/shared/TagChip";
+import { Modal } from "../ui/shared/Modal";
+import { ConfirmDialog } from "../ui/shared/ConfirmDialog";
+import { EmptyState } from "../ui/shared/EmptyState";
 import { TagForm } from "./TagForm";
 
 const TagManager = ({ tags, onCreate, onUpdate, onDelete, mutationError }) => {

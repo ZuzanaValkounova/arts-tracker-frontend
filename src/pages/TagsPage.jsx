@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { TagManager } from "../components/tag/TagManager";
-import { LoadingState } from "../components/ui/LoadingState";
-import { ErrorState } from "../components/ui/ErrorState";
+import { LoadingState } from "../components/ui/shared/LoadingState";
+import { ErrorState } from "../components/ui/shared/ErrorState";
 
 import { getTags, createTag, updateTag, deleteTag } from "../api/tags";
 import { useAuth } from "../contexts/AuthContext";

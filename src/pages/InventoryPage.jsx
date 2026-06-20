@@ -4,10 +4,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { InventoryList } from "../components/inventory/InventoryList";
 import { InventoryFilters } from "../components/inventory/InventoryFilters";
 import { InventoryForm } from "../components/inventory/InventoryForm";
-import { Modal } from "../components/ui/Modal";
-import { ConfirmDialog } from "../components/ui/ConfirmDialog";
-import { LoadingState } from "../components/ui/LoadingState";
-import { ErrorState } from "../components/ui/ErrorState";
+import { Modal } from "../components/ui/shared/Modal";
+import { ConfirmDialog } from "../components/ui/shared/ConfirmDialog";
+import { LoadingState } from "../components/ui/shared/LoadingState";
+import { ErrorState } from "../components/ui/shared/ErrorState";
 
 import {
 	getInventoryItems,

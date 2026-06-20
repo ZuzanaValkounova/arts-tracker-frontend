@@ -1,23 +1,23 @@
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { Draggable } from "@hello-pangea/dnd";
 
 import { TaskCard } from "./TaskCard";
 
-// dnd-kit wrapper: registers the card as sortable under the task id
-const SortableTaskCard = ({ task, onOpen }) => {
-	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-		id: task._id,
-		data: { type: "task", task },
-	});
-
+const SortableTaskCard = ({ task, index, onOpen }) => {
 	return (
-		<div
-			ref={setNodeRef}
-			style={{ transform: CSS.Transform.toString(transform), transition }}
-			{...attributes}
-			{...listeners}>
-			<TaskCard task={task} onOpen={onOpen} dragging={isDragging} />
-		</div>
+		<Draggable draggableId={task._id} index={index}>
+			{(provided, snapshot) => (
+				<div
+					ref={provided.innerRef}
+					{...provided.draggableProps}
+					{...provided.dragHandleProps}
+					style={{
+						...provided.draggableProps.style,
+						opacity: snapshot.isDragging ? 0.85 : 1,
+					}}>
+					<TaskCard task={task} onOpen={onOpen} />
+				</div>
+			)}
+		</Draggable>
 	);
 };
 

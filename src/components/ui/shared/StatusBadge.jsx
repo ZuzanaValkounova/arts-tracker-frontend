@@ -1,4 +1,4 @@
-import { STATUS_META } from "../../utils/constants";
+import { STATUS_META } from "../../../utils/constants";
 
 const SIZE_CLASSES = {
 	sm: "px-1.5 py-0.5 text-[11px]",
@@ -12,8 +12,7 @@ const StatusBadge = ({ status, size = "md" }) => {
 
 	return (
 		<span
-			className={`inline-flex items-center rounded-full font-medium ${meta.className} ${SIZE_CLASSES[size]}`}
-		>
+			className={`inline-flex items-center rounded-full font-medium ${meta.className} ${SIZE_CLASSES[size]}`}>
 			{meta.label}
 		</span>
 	);

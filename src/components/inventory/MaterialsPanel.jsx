@@ -1,5 +1,5 @@
 import { CostSummary } from "./CostSummary";
-import { EmptyState } from "../ui/EmptyState";
+import { EmptyState } from "../ui/shared/EmptyState";
 
 // materials: [{ _id, inventoryItem, quantity, estimatedCost, actualCost }]
 const MaterialsPanel = ({ materials, totals, onAdd, onEdit, onRemove }) => {

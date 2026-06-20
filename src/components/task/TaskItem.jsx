@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import { StatusBadge } from "../ui/StatusBadge";
-import { PriorityBadge } from "../ui/PriorityBadge";
+import { StatusBadge } from "../ui/shared/StatusBadge";
+import { PriorityBadge } from "../ui/shared/PriorityBadge";
 import { isOverdue } from "../../utils/tasks";
 
 // one row in the list view; renders nested subtasks recursively via task.children

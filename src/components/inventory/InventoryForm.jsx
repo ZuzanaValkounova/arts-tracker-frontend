@@ -2,7 +2,7 @@ import { useState } from "react";
 import { z } from "zod";
 
 import { INVENTORY_TYPES, INVENTORY_STATUSES } from "../../utils/constants";
-import { ImageUpload } from "../ui/ImageUpload";
+import { ImageUpload } from "../ui/shared/ImageUpload";
 
 // mirrors backend validators/inventoryItemValidator.js
 const inventoryItemSchema = z.object({

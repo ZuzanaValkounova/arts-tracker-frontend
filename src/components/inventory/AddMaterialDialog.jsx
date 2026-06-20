@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal } from "../ui/Modal";
+import { Modal } from "../ui/shared/Modal";
 
 const AddMaterialDialog = ({ open, inventory = [], initialValues, onSubmit, onClose, loading }) => {
 	const [inventoryItemId, setInventoryItemId] = useState(initialValues?.inventoryItemId ?? "");

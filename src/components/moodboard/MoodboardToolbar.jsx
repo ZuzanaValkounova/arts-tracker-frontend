@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ColorSwatch } from "../ui/ColorSwatch";
+import { ColorSwatch } from "../ui/shared/ColorSwatch";
 
 const TOOLS = [
 	{ id: "select", label: "Select", icon: "🖱️" },

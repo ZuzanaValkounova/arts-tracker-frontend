@@ -1,5 +1,5 @@
-import { DateField } from "../ui/DateField";
-import { CategoryPicker } from "../ui/CategoryPicker";
+import { DateField } from "../ui/shared/DateField";
+import { CategoryPicker } from "../ui/shared/CategoryPicker";
 
 const iso = (date) => date.toISOString().slice(0, 10);
 
