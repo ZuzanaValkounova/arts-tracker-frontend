@@ -1,7 +1,6 @@
 import { PriorityBadge } from "../ui/PriorityBadge";
 import { isOverdue } from "../../utils/tasks";
 
-// presentational card used on the kanban board (wrapped by SortableTaskCard for dnd)
 const TaskCard = ({ task, onOpen, dragging = false }) => {
 	return (
 		<div

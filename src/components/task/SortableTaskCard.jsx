@@ -15,8 +15,7 @@ const SortableTaskCard = ({ task, onOpen }) => {
 			ref={setNodeRef}
 			style={{ transform: CSS.Transform.toString(transform), transition }}
 			{...attributes}
-			{...listeners}
-		>
+			{...listeners}>
 			<TaskCard task={task} onOpen={onOpen} dragging={isDragging} />
 		</div>
 	);

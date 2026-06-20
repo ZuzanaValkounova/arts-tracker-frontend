@@ -4,7 +4,6 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { SortableTaskCard } from "./SortableTaskCard";
 import { STATUS_META } from "../../utils/constants";
 
-// droppable zone for one task status; cards inside are sortable
 const KanbanColumn = ({ status, title, tasks, onOpenTask }) => {
 	const { setNodeRef, isOver } = useDroppable({
 		id: status,

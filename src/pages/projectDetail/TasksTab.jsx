@@ -110,15 +110,8 @@ const TasksTab = ({ project, onCascade }) => {
 			{view === "kanban" ? (
 				<TaskKanbanBoard
 					tasks={tasks.filter((task) => !task.parentTaskId)}
-					onStatusChange={(taskId, status) => updateMutation.mutate({ taskId, values: { status } })}
-					onReorder={(taskId, order) => {
-						if (order === null) {
-							// sibling order gap exhausted -> renumber, then the next drag works again
-							renumberMutation.mutate(null);
-							return;
-						}
-						updateMutation.mutate({ taskId, values: { order } });
-					}}
+					onMove={(taskId, values) => updateMutation.mutate({ taskId, values })}
+					onRenumber={() => renumberMutation.mutate(null)}
 					onOpen={setOpenTaskId}
 				/>
 			) : (
