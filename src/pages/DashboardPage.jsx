@@ -1,16 +1,28 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Search } from "lucide-react";
 
 import { ProjectsGrid } from "../components/project/ProjectsGrid";
 import { ProjectForm } from "../components/project/ProjectForm";
 import { CategoryPicker } from "../components/ui/shared/CategoryPicker";
 import { TagChip } from "../components/ui/shared/TagChip";
-import { Modal } from "../components/ui/shared/Modal";
+import { FormDialog } from "../components/ui/shared/FormDialog";
 import { ConfirmDialog } from "../components/ui/shared/ConfirmDialog";
+import { NewButton } from "../components/ui/shared/NewButton";
 import { LoadingState } from "../components/ui/shared/LoadingState";
 import { ErrorState } from "../components/ui/shared/ErrorState";
 import { EmptyState } from "../components/ui/shared/EmptyState";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 import { getProjects, createProject, updateProject, deleteProject } from "../api/projects";
 import { getCategories } from "../api/categories";
@@ -72,17 +84,24 @@ const DashboardPage = () => {
 				? updateProject(token, editedProject._id, values)
 				: createProject(token, values),
 		onSuccess: () => {
+			toast.success(editedProject ? "Project updated" : "Project created");
 			queryClient.invalidateQueries({ queryKey: ["projects"] });
 			closeForm();
 		},
 	});
 	const deleteMutation = useMutation({
 		mutationFn: (projectId) => deleteProject(token, projectId),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects"] }),
+		onSuccess: () => {
+			toast.success("Project deleted");
+			queryClient.invalidateQueries({ queryKey: ["projects"] });
+		},
 	});
 	const createTagMutation = useMutation({
 		mutationFn: ({ name, color }) => createTag(token, { name, color }),
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tags"] }),
+		onSuccess: () => {
+			toast.success("Tag created");
+			queryClient.invalidateQueries({ queryKey: ["tags"] });
+		},
 	});
 
 	const closeForm = () => {
@@ -161,12 +180,7 @@ const DashboardPage = () => {
 		<div className="flex flex-col gap-4">
 			<div className="flex items-center justify-between">
 				<h1 className="text-xl font-bold">Projects</h1>
-				<button
-					type="button"
-					onClick={() => setFormOpen(true)}
-					className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
-					+ New project
-				</button>
+				<NewButton label="New project" onClick={() => setFormOpen(true)} />
 			</div>
 
 			{/* summary strip: status counts that are also quick filters */}
@@ -175,11 +189,12 @@ const DashboardPage = () => {
 					<button
 						type="button"
 						onClick={() => updateParams({ status: [] })}
-						className={`rounded-full px-3 py-1 text-sm ${
+						className={cn(
+							"rounded-full px-3 py-1 text-sm transition-colors",
 							selectedStatuses.length === 0
-								? "bg-gray-900 text-white"
-								: "bg-gray-100 text-gray-600 hover:bg-gray-200"
-						}`}>
+								? "bg-foreground text-background"
+								: "bg-muted text-muted-foreground hover:bg-muted/70",
+						)}>
 						All <span className="font-semibold">{contextCount}</span>
 					</button>
 					{PROJECT_STATUSES.filter(
@@ -189,11 +204,13 @@ const DashboardPage = () => {
 							key={status}
 							type="button"
 							onClick={() => toggleStatus(status)}
-							className={`rounded-full px-3 py-1 text-sm font-medium ${STATUS_META[status].className} ${
+							className={cn(
+								"rounded-full px-3 py-1 text-sm font-medium transition-all",
+								STATUS_META[status].className,
 								selectedStatuses.includes(status)
-									? "ring-2 ring-gray-900 ring-offset-1"
-									: "opacity-80 hover:opacity-100"
-							}`}>
+									? "ring-2 ring-ring ring-offset-1"
+									: "opacity-80 hover:opacity-100",
+							)}>
 							{STATUS_META[status].label} <span className="font-bold">{statusCounts[status]}</span>
 						</button>
 					))}
@@ -202,34 +219,41 @@ const DashboardPage = () => {
 
 			{/* search + category + tag filters and sorting */}
 			{!hasNoProjects && (
-				<div className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-3">
+				<div className="flex flex-col gap-3 rounded-lg border bg-card p-3">
 					<div className="flex flex-wrap items-center gap-3">
-						<input
-							type="search"
-							value={search}
-							onChange={(e) => updateParams({ search: e.target.value })}
-							placeholder="Search projects…"
-							className="w-56 rounded border border-gray-300 px-2 py-1.5 text-sm"
-						/>
+						<div className="relative w-56">
+							<Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+							<Input
+								type="search"
+								value={search}
+								onChange={(e) => updateParams({ search: e.target.value })}
+								placeholder="Search projects…"
+								className="pl-8"
+							/>
+						</div>
 						<CategoryPicker
 							value={categoryId}
 							options={categoriesQuery.data ?? []}
 							onChange={(id) => updateParams({ category: id })}
 						/>
 						<div className="ml-auto flex items-center gap-2">
-							<label className="text-xs text-gray-500">Sort</label>
-							<select
+							<span className="text-xs text-muted-foreground">Sort</span>
+							<Select
 								value={sort}
-								onChange={(e) =>
-									updateParams({ sort: e.target.value === DEFAULT_SORT ? null : e.target.value })
-								}
-								className="rounded border border-gray-300 px-2 py-1.5 text-sm">
-								{SORT_OPTIONS.map((option) => (
-									<option key={option.id} value={option.id}>
-										{option.label}
-									</option>
-								))}
-							</select>
+								onValueChange={(next) =>
+									updateParams({ sort: next === DEFAULT_SORT ? null : next })
+								}>
+								<SelectTrigger size="sm" className="w-40">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{SORT_OPTIONS.map((option) => (
+										<SelectItem key={option.id} value={option.id}>
+											{option.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</div>
 					</div>
 					{tags.length > 0 && (
@@ -268,11 +292,11 @@ const DashboardPage = () => {
 				/>
 			)}
 
-			<Modal
+			<FormDialog
 				open={formOpen}
 				onClose={closeForm}
 				title={editedProject ? "Edit project" : "New project"}
-				widthClass="max-w-2xl">
+				className="sm:max-w-2xl">
 				<ProjectForm
 					key={editedProject?._id ?? "new"}
 					initialValues={editedProject ?? undefined}
@@ -283,10 +307,7 @@ const DashboardPage = () => {
 					onCreateTag={(name, color) => createTagMutation.mutate({ name, color })}
 					onCancel={closeForm}
 				/>
-				{saveMutation.isError && (
-					<p className="mt-2 text-xs text-red-600">{saveMutation.error.message}</p>
-				)}
-			</Modal>
+			</FormDialog>
 
 			<ConfirmDialog
 				open={Boolean(projectToDelete)}

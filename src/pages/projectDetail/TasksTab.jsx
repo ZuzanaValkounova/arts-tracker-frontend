@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { ViewSwitcher } from "../../components/ui/shared/ViewSwitcher";
-import { Modal } from "../../components/ui/shared/Modal";
+import { FormDialog } from "../../components/ui/shared/FormDialog";
 import { ConfirmDialog } from "../../components/ui/shared/ConfirmDialog";
+import { NewButton } from "../../components/ui/shared/NewButton";
 import { LoadingState } from "../../components/ui/shared/LoadingState";
 import { ErrorState } from "../../components/ui/shared/ErrorState";
 import { TaskKanbanBoard } from "../../components/task/TaskKanbanBoard";
@@ -45,6 +47,7 @@ const TasksTab = ({ project, onCascade }) => {
 		mutationFn: (values) =>
 			editedTask ? updateTask(token, editedTask._id, values) : createTask(token, values),
 		onSuccess: (result) => {
+			toast.success(editedTask ? "Task updated" : "Task created");
 			handleMutationResult(result);
 			closeForm();
 		},
@@ -57,7 +60,10 @@ const TasksTab = ({ project, onCascade }) => {
 
 	const deleteMutation = useMutation({
 		mutationFn: (taskId) => deleteTask(token, taskId),
-		onSuccess: handleMutationResult,
+		onSuccess: (result) => {
+			toast.success("Task deleted");
+			handleMutationResult(result);
+		},
 	});
 
 	const renumberMutation = useMutation({
@@ -99,12 +105,7 @@ const TasksTab = ({ project, onCascade }) => {
 		<div className="flex flex-col gap-3">
 			<div className="flex items-center justify-between">
 				<ViewSwitcher value={view} onChange={setView} options={["list", "kanban"]} />
-				<button
-					type="button"
-					onClick={() => setFormOpen(true)}
-					className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700">
-					+ New task
-				</button>
+				<NewButton label="New task" onClick={() => setFormOpen(true)} />
 			</div>
 
 			{view === "kanban" ? (
@@ -130,7 +131,7 @@ const TasksTab = ({ project, onCascade }) => {
 				/>
 			)}
 
-			<Modal
+			<FormDialog
 				open={formOpen}
 				onClose={closeForm}
 				title={editedTask ? "Edit task" : parentTask ? "New subtask" : "New task"}>
@@ -144,7 +145,7 @@ const TasksTab = ({ project, onCascade }) => {
 					onSubmit={saveMutation.mutate}
 					onCancel={closeForm}
 				/>
-			</Modal>
+			</FormDialog>
 
 			<TaskDetailDialog
 				open={Boolean(openTask)}

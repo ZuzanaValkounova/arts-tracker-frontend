@@ -1,18 +1,19 @@
+import { Plus, Pencil, Trash2 } from "lucide-react";
+
 import { CostSummary } from "./CostSummary";
 import { EmptyState } from "../ui/shared/EmptyState";
+import { Button } from "@/components/ui/button";
 
 // materials: [{ _id, inventoryItem, quantity, estimatedCost, actualCost }]
 const MaterialsPanel = ({ materials, totals, onAdd, onEdit, onRemove }) => {
 	return (
-		<section className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4">
+		<section className="flex flex-col gap-3 rounded-lg border bg-card p-4">
 			<div className="flex items-center justify-between">
 				<h3 className="text-sm font-semibold">Materials</h3>
-				<button
-					type="button"
-					onClick={onAdd}
-					className="rounded bg-blue-600 px-2.5 py-1 text-xs text-white hover:bg-blue-700">
-					+ Add material
-				</button>
+				<Button type="button" size="sm" onClick={onAdd}>
+					<Plus />
+					Add material
+				</Button>
 			</div>
 
 			{materials.length === 0 ? (
@@ -20,7 +21,7 @@ const MaterialsPanel = ({ materials, totals, onAdd, onEdit, onRemove }) => {
 			) : (
 				<table className="w-full text-sm">
 					<thead>
-						<tr className="border-b border-gray-200 text-left text-xs text-gray-500">
+						<tr className="border-b text-left text-xs text-muted-foreground">
 							<th className="py-1.5 font-medium">Item</th>
 							<th className="py-1.5 font-medium">Quantity</th>
 							<th className="py-1.5 font-medium">Estimated</th>
@@ -30,11 +31,11 @@ const MaterialsPanel = ({ materials, totals, onAdd, onEdit, onRemove }) => {
 					</thead>
 					<tbody>
 						{materials.map((material) => (
-							<tr key={material._id} className="border-b border-gray-100">
+							<tr key={material._id} className="border-b">
 								<td className="py-2">
 									{material.inventoryItem?.name ?? "(deleted item)"}
 									{material.inventoryItem?.type === "tool" && (
-										<span className="ml-1 text-xs text-gray-400">🔧</span>
+										<span className="ml-1 text-xs text-muted-foreground">🔧</span>
 									)}
 								</td>
 								<td className="py-2">{material.quantity ?? "—"}</td>
@@ -44,19 +45,25 @@ const MaterialsPanel = ({ materials, totals, onAdd, onEdit, onRemove }) => {
 								<td className="py-2">
 									{material.actualCost != null ? material.actualCost.toLocaleString() : "—"}
 								</td>
-								<td className="py-2 text-right">
-									<button
-										type="button"
-										onClick={() => onEdit(material)}
-										className="mr-2 text-xs text-gray-500 hover:text-gray-800">
-										Edit
-									</button>
-									<button
-										type="button"
-										onClick={() => onRemove(material)}
-										className="text-xs text-red-500 hover:text-red-700">
-										Remove
-									</button>
+								<td className="py-2">
+									<div className="flex justify-end gap-1">
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon-sm"
+											aria-label="Edit material"
+											onClick={() => onEdit(material)}>
+											<Pencil />
+										</Button>
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon-sm"
+											aria-label="Remove material"
+											onClick={() => onRemove(material)}>
+											<Trash2 />
+										</Button>
+									</div>
 								</td>
 							</tr>
 						))}

@@ -1,12 +1,14 @@
+import { Pencil, Trash2 } from "lucide-react";
+
 import { ProgressBar } from "../ui/shared/ProgressBar";
 import { DifficultyRating } from "../ui/shared/DifficultyRating";
 import { TagChip } from "../ui/shared/TagChip";
+import { Button } from "@/components/ui/button";
 import { ProjectStatusControl } from "./ProjectStatusControl";
 
-// progress (0–100) is computed on the FE from the project's tasks
 const ProjectDetailHeader = ({ project, progress, onEdit, onDelete, onStatusChange }) => {
 	return (
-		<header className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-5">
+		<header className="flex flex-col gap-3 rounded-lg border bg-card p-5">
 			<div className="flex flex-wrap items-start justify-between gap-3">
 				<div className="flex items-center gap-4">
 					{project.image?.url && (
@@ -22,7 +24,7 @@ const ProjectDetailHeader = ({ project, progress, onEdit, onDelete, onStatusChan
 							style={project.color ? { color: project.color } : undefined}>
 							{project.name}
 						</h1>
-						<div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500">
+						<div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
 							{project.category && (
 								<span>
 									{project.category.icon} {project.category.name}
@@ -37,21 +39,19 @@ const ProjectDetailHeader = ({ project, progress, onEdit, onDelete, onStatusChan
 				</div>
 				<div className="flex items-center gap-2">
 					<ProjectStatusControl value={project.status} onChange={onStatusChange} />
-					<button
-						type="button"
-						onClick={onEdit}
-						className="rounded border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50">
+					<Button type="button" variant="outline" onClick={onEdit}>
+						<Pencil />
 						Edit
-					</button>
-					<button
-						type="button"
-						onClick={onDelete}
-						className="rounded border border-red-300 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50">
+					</Button>
+					<Button type="button" variant="destructive" onClick={onDelete}>
+						<Trash2 />
 						Delete
-					</button>
+					</Button>
 				</div>
 			</div>
-			{project.description && <p className="text-sm text-gray-600">{project.description}</p>}
+			{project.description && (
+				<p className="text-sm text-muted-foreground">{project.description}</p>
+			)}
 			{project.tags?.length > 0 && (
 				<div className="flex flex-wrap gap-1">
 					{project.tags.map((tag) => (

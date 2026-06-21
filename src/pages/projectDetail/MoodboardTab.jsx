@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { MoodboardCanvas } from "../../components/moodboard/MoodboardCanvas";
 import { MoodboardToolbar } from "../../components/moodboard/MoodboardToolbar";
-import { Modal } from "../../components/ui/shared/Modal";
+import { FormDialog } from "../../components/ui/shared/FormDialog";
 import { ImageUpload } from "../../components/ui/shared/ImageUpload";
 import { EmptyState } from "../../components/ui/shared/EmptyState";
 import { LoadingState } from "../../components/ui/shared/LoadingState";
@@ -38,7 +39,10 @@ const MoodboardTab = ({ project }) => {
 
 	const createBoardMutation = useMutation({
 		mutationFn: () => createMoodboard(token, projectId),
-		onSuccess: invalidate,
+		onSuccess: () => {
+			toast.success("Moodboard created");
+			invalidate();
+		},
 	});
 	const addElementMutation = useMutation({
 		mutationFn: (element) => createMoodboardElement(token, projectId, element),
@@ -104,11 +108,11 @@ const MoodboardTab = ({ project }) => {
 				onElementDelete={(elementId) => deleteElementMutation.mutate(elementId)}
 			/>
 
-			<Modal
+			<FormDialog
 				open={Boolean(pendingImage)}
 				onClose={() => setPendingImage(null)}
 				title="Add image"
-				widthClass="max-w-md">
+				className="sm:max-w-md">
 				<ImageUpload
 					value={null}
 					onSelect={(file) => {
@@ -120,7 +124,7 @@ const MoodboardTab = ({ project }) => {
 						setPendingImage(null);
 					}}
 				/>
-			</Modal>
+			</FormDialog>
 		</div>
 	);
 };

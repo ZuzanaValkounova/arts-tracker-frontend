@@ -1,6 +1,10 @@
 import { useState } from "react";
+import { Plus } from "lucide-react";
+
 import { TagChip } from "./TagChip";
 import { ColorPicker } from "./ColorPicker";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 // value: array of tagIds, options: available tags [{ _id, name, color }]
 const TagPicker = ({ value = [], options = [], onChange, onCreate }) => {
@@ -35,34 +39,27 @@ const TagPicker = ({ value = [], options = [], onChange, onCreate }) => {
 					<button
 						type="button"
 						onClick={() => setCreating(true)}
-						className="rounded-full border border-dashed border-gray-300 px-2 py-0.5 text-xs text-gray-500 hover:border-gray-500">
-						+ New tag
+						className="inline-flex items-center gap-1 rounded-full border border-dashed border-input px-2 py-0.5 text-xs text-muted-foreground transition-colors hover:border-ring hover:text-foreground">
+						<Plus className="size-3" />
+						New tag
 					</button>
 				)}
 			</div>
 			{creating && (
-				<div className="flex flex-wrap items-center gap-2 rounded border border-gray-200 p-2">
-					<input
-						type="text"
+				<div className="flex flex-wrap items-center gap-2 rounded-lg border p-2">
+					<Input
 						value={newName}
 						onChange={(e) => setNewName(e.target.value)}
 						placeholder="Tag name"
-						className="rounded border border-gray-300 px-2 py-1 text-xs"
+						className="h-7 w-40"
 					/>
 					<ColorPicker value={newColor} onChange={setNewColor} />
-					<button
-						type="button"
-						onClick={handleCreate}
-						disabled={!newName.trim()}
-						className="rounded bg-blue-600 px-2 py-1 text-xs text-white disabled:opacity-50">
+					<Button type="button" size="sm" onClick={handleCreate} disabled={!newName.trim()}>
 						Create
-					</button>
-					<button
-						type="button"
-						onClick={() => setCreating(false)}
-						className="text-xs text-gray-500">
+					</Button>
+					<Button type="button" variant="ghost" size="sm" onClick={() => setCreating(false)}>
 						Cancel
-					</button>
+					</Button>
 				</div>
 			)}
 		</div>

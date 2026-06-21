@@ -109,7 +109,7 @@ const MoodboardCanvas = ({
 	const sortedElements = [...elements].sort((a, b) => (a.z ?? 0) - (b.z ?? 0));
 
 	return (
-		<div className="relative overflow-auto rounded-lg border border-gray-200 bg-white">
+		<div className="relative overflow-auto rounded-lg border bg-card">
 			<Stage
 				width={STAGE_WIDTH}
 				height={STAGE_HEIGHT}

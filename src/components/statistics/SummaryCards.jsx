@@ -28,10 +28,10 @@ const SummaryCards = ({ stats }) => {
 	return (
 		<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
 			{cards.map((card) => (
-				<div key={card.label} className="rounded-lg border border-gray-200 bg-white p-3">
-					<div className="text-xs text-gray-500">{card.label}</div>
+				<div key={card.label} className="rounded-lg border bg-card p-3">
+					<div className="text-xs text-muted-foreground">{card.label}</div>
 					<div className="text-xl font-bold">{card.value}</div>
-					{card.hint && <div className="text-[10px] text-gray-400">{card.hint}</div>}
+					{card.hint && <div className="text-[10px] text-muted-foreground/70">{card.hint}</div>}
 				</div>
 			))}
 		</div>

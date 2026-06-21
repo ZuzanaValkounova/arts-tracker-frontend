@@ -15,10 +15,10 @@ const DifficultyChart = ({ data }) => {
 	const hasData = chartData.some(({ count }) => count > 0);
 
 	return (
-		<div className="rounded-lg border border-gray-200 bg-white p-4">
+		<div className="rounded-lg border bg-card p-4">
 			<h3 className="mb-3 text-sm font-semibold">Projects by difficulty</h3>
 			{!hasData ? (
-				<p className="text-sm text-gray-400">No data</p>
+				<p className="text-sm text-muted-foreground">No data</p>
 			) : (
 				<ResponsiveContainer width="100%" height={220}>
 					<BarChart data={chartData} margin={{ top: 8, right: 8 }}>

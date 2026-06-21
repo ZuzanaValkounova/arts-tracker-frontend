@@ -3,8 +3,19 @@ import { z } from "zod";
 
 import { INVENTORY_TYPES, INVENTORY_STATUSES } from "../../utils/constants";
 import { ImageUpload } from "../ui/shared/ImageUpload";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
-// mirrors backend validators/inventoryItemValidator.js
 const inventoryItemSchema = z.object({
 	name: z.string().min(1, "Name is required").max(200),
 	description: z.string().max(2000).optional(),
@@ -67,115 +78,112 @@ const InventoryForm = ({ initialValues, categories = [], onSubmit, onCancel, loa
 
 	return (
 		<form onSubmit={handleSubmit} className="flex flex-col gap-4">
-			<label className="flex flex-col gap-1 text-sm">
-				<span className="text-xs font-medium text-gray-600">Name *</span>
-				<input
-					type="text"
-					value={values.name}
-					onChange={(e) => set({ name: e.target.value })}
-					className="rounded border border-gray-300 px-2 py-1.5 text-sm"
-				/>
-				{errors.name && <span className="text-xs text-red-600">{errors.name}</span>}
-			</label>
+			<div className="flex flex-col gap-1.5">
+				<Label>Name *</Label>
+				<Input value={values.name} onChange={(e) => set({ name: e.target.value })} />
+				{errors.name && <span className="text-xs text-destructive">{errors.name}</span>}
+			</div>
 
-			<label className="flex flex-col gap-1 text-sm">
-				<span className="text-xs font-medium text-gray-600">Description</span>
-				<textarea
+			<div className="flex flex-col gap-1.5">
+				<Label>Description</Label>
+				<Textarea
 					value={values.description}
 					onChange={(e) => set({ description: e.target.value })}
 					rows={2}
-					className="rounded border border-gray-300 px-2 py-1.5 text-sm"
 				/>
-			</label>
+			</div>
 
 			<div className="flex flex-wrap items-end gap-4">
-				<label className="flex flex-col gap-1 text-sm">
-					<span className="text-xs font-medium text-gray-600">Type</span>
-					<select
-						value={values.type}
-						onChange={(e) => set({ type: e.target.value })}
-						className="rounded border border-gray-300 px-2 py-1.5 text-sm">
-						<option value="consumable">Consumable</option>
-						<option value="tool">Tool</option>
-					</select>
-				</label>
-				<label className="flex flex-col gap-1 text-sm">
-					<span className="text-xs font-medium text-gray-600">Status</span>
-					<select
-						value={values.status}
-						onChange={(e) => set({ status: e.target.value })}
-						className="rounded border border-gray-300 px-2 py-1.5 text-sm">
-						<option value="wishlist">Wishlist</option>
-						<option value="owned">Owned</option>
-					</select>
-				</label>
-				<label className="flex flex-col gap-1 text-sm">
-					<span className="text-xs font-medium text-gray-600">Quantity</span>
-					<input
+				<div className="flex flex-col gap-1.5">
+					<Label>Type</Label>
+					<Select value={values.type} onValueChange={(type) => set({ type })}>
+						<SelectTrigger className="w-36">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="consumable">Consumable</SelectItem>
+							<SelectItem value="tool">Tool</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+				<div className="flex flex-col gap-1.5">
+					<Label>Status</Label>
+					<Select value={values.status} onValueChange={(status) => set({ status })}>
+						<SelectTrigger className="w-36">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="wishlist">Wishlist</SelectItem>
+							<SelectItem value="owned">Owned</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+				<div className="flex flex-col gap-1.5">
+					<Label>Quantity</Label>
+					<Input
 						type="number"
 						min={0}
 						value={values.quantity}
 						onChange={(e) => set({ quantity: Number(e.target.value) })}
-						className="w-20 rounded border border-gray-300 px-2 py-1.5 text-sm"
+						className="w-20"
 					/>
-				</label>
-				<label className="flex flex-col gap-1 text-sm">
-					<span className="text-xs font-medium text-gray-600">Price</span>
-					<input
+				</div>
+				<div className="flex flex-col gap-1.5">
+					<Label>Price</Label>
+					<Input
 						type="number"
 						min={0}
 						step="0.01"
 						value={values.price ?? ""}
 						onChange={(e) => set({ price: e.target.value === "" ? null : Number(e.target.value) })}
-						className="w-24 rounded border border-gray-300 px-2 py-1.5 text-sm"
+						className="w-24"
 					/>
-				</label>
-				<label className="flex flex-col gap-1 text-sm">
-					<span className="text-xs font-medium text-gray-600">Currency</span>
-					<input
-						type="text"
+				</div>
+				<div className="flex flex-col gap-1.5">
+					<Label>Currency</Label>
+					<Input
 						maxLength={3}
 						value={values.currency}
 						onChange={(e) => set({ currency: e.target.value.toUpperCase() })}
-						className="w-16 rounded border border-gray-300 px-2 py-1.5 text-sm uppercase"
+						className="w-16 uppercase"
 					/>
-					{errors.currency && <span className="text-xs text-red-600">{errors.currency}</span>}
-				</label>
+					{errors.currency && <span className="text-xs text-destructive">{errors.currency}</span>}
+				</div>
 			</div>
 
-			<label className="flex flex-col gap-1 text-sm">
-				<span className="text-xs font-medium text-gray-600">Source URL</span>
-				<input
+			<div className="flex flex-col gap-1.5">
+				<Label>Source URL</Label>
+				<Input
 					type="url"
 					value={values.source}
 					onChange={(e) => set({ source: e.target.value })}
 					placeholder="https://…"
-					className="rounded border border-gray-300 px-2 py-1.5 text-sm"
 				/>
-				{errors.source && <span className="text-xs text-red-600">{errors.source}</span>}
-			</label>
+				{errors.source && <span className="text-xs text-destructive">{errors.source}</span>}
+			</div>
 
-			<div className="flex flex-col gap-1 text-sm">
-				<span className="text-xs font-medium text-gray-600">Categories</span>
+			<div className="flex flex-col gap-1.5">
+				<Label>Categories</Label>
 				<div className="flex flex-wrap gap-1.5">
 					{categories.map((category) => (
 						<button
 							key={category._id}
 							type="button"
 							onClick={() => toggleCategory(category._id)}
-							className={`rounded-full border px-2.5 py-0.5 text-xs ${
+							className={cn(
+								"rounded-full border px-2.5 py-0.5 text-xs transition-colors",
 								values.categoryIds.includes(category._id)
-									? "border-blue-400 bg-blue-50 text-blue-700"
-									: "border-gray-300 text-gray-500 hover:border-gray-400"
-							}`}>
+									? "border-primary bg-primary/10 text-foreground"
+									: "border-border text-muted-foreground hover:border-ring",
+							)}>
 							{category.icon} {category.name}
 						</button>
 					))}
 				</div>
 			</div>
 
-			<label className="flex flex-col gap-1 text-sm">
-				<span className="text-xs font-medium text-gray-600">Image</span>
+			<div className="flex flex-col gap-1.5">
+				<Label>Image</Label>
 				<ImageUpload
 					value={removeImage ? null : (initialValues?.image?.url ?? null)}
 					onSelect={(file) => {
@@ -187,21 +195,15 @@ const InventoryForm = ({ initialValues, categories = [], onSubmit, onCancel, loa
 						setRemoveImage(true);
 					}}
 				/>
-			</label>
+			</div>
 
 			<div className="flex justify-end gap-2 pt-2">
-				<button
-					type="button"
-					onClick={onCancel}
-					className="rounded border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50">
+				<Button type="button" variant="outline" onClick={onCancel}>
 					Cancel
-				</button>
-				<button
-					type="submit"
-					disabled={loading}
-					className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700 disabled:opacity-50">
+				</Button>
+				<Button type="submit" disabled={loading}>
 					{loading ? "Saving…" : initialValues ? "Save changes" : "Add item"}
-				</button>
+				</Button>
 			</div>
 		</form>
 	);

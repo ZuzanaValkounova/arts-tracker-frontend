@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { MaterialsPanel } from "../../components/inventory/MaterialsPanel";
 import { AddMaterialDialog } from "../../components/inventory/AddMaterialDialog";
@@ -42,6 +43,7 @@ const MaterialsTab = ({ project }) => {
 				? updateProjectMaterial(token, projectId, editedMaterial._id, values)
 				: createProjectMaterial(token, projectId, values),
 		onSuccess: () => {
+			toast.success(editedMaterial ? "Material updated" : "Material added");
 			invalidate();
 			closeDialog();
 		},
@@ -49,7 +51,10 @@ const MaterialsTab = ({ project }) => {
 
 	const removeMutation = useMutation({
 		mutationFn: (materialId) => removeProjectMaterial(token, projectId, materialId),
-		onSuccess: invalidate,
+		onSuccess: () => {
+			toast.success("Material removed");
+			invalidate();
+		},
 	});
 
 	const closeDialog = () => {

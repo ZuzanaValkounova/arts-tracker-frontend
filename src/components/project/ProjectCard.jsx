@@ -1,13 +1,16 @@
+import { Pencil, Trash2 } from "lucide-react";
+
 import { StatusBadge } from "../ui/shared/StatusBadge";
 import { DifficultyRating } from "../ui/shared/DifficultyRating";
 import { ProgressBar } from "../ui/shared/ProgressBar";
 import { TagChip } from "../ui/shared/TagChip";
+import { Button } from "@/components/ui/button";
 
 const ProjectCard = ({ project, progress, onOpen, onEdit, onDelete }) => {
 	return (
 		<div
 			onClick={onOpen}
-			className="cursor-pointer overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
+			className="cursor-pointer overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm transition hover:shadow-md"
 			style={project.color ? { borderTopColor: project.color, borderTopWidth: 3 } : undefined}>
 			{project.image?.url && (
 				<img src={project.image.url} alt={project.name} className="h-32 w-full object-cover" />
@@ -18,7 +21,7 @@ const ProjectCard = ({ project, progress, onOpen, onEdit, onDelete }) => {
 					<StatusBadge status={project.status} size="sm" />
 				</div>
 				{project.category && (
-					<div className="text-xs text-gray-500">
+					<div className="text-xs text-muted-foreground">
 						{project.category.icon} {project.category.name}
 					</div>
 				)}
@@ -29,7 +32,7 @@ const ProjectCard = ({ project, progress, onOpen, onEdit, onDelete }) => {
 						))}
 					</div>
 				)}
-				<div className="flex items-center justify-between text-xs text-gray-500">
+				<div className="flex items-center justify-between text-xs text-muted-foreground">
 					{project.difficulty ? <DifficultyRating value={project.difficulty} readOnly /> : <span />}
 					{project.deadline && <span>Due {new Date(project.deadline).toLocaleDateString()}</span>}
 				</div>
@@ -43,28 +46,32 @@ const ProjectCard = ({ project, progress, onOpen, onEdit, onDelete }) => {
 					/>
 				) : null}
 				{(onEdit || onDelete) && (
-					<div className="flex justify-end gap-2 pt-1">
+					<div className="flex justify-end gap-1 pt-1">
 						{onEdit && (
-							<button
+							<Button
 								type="button"
+								variant="ghost"
+								size="icon-sm"
+								aria-label="Edit project"
 								onClick={(e) => {
 									e.stopPropagation();
 									onEdit();
-								}}
-								className="text-xs text-gray-500 hover:text-gray-800">
-								Edit
-							</button>
+								}}>
+								<Pencil />
+							</Button>
 						)}
 						{onDelete && (
-							<button
+							<Button
 								type="button"
+								variant="ghost"
+								size="icon-sm"
+								aria-label="Delete project"
 								onClick={(e) => {
 									e.stopPropagation();
 									onDelete();
-								}}
-								className="text-xs text-red-500 hover:text-red-700">
-								Delete
-							</button>
+								}}>
+								<Trash2 />
+							</Button>
 						)}
 					</div>
 				)}

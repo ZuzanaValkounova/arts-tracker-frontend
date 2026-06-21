@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { TagManager } from "../components/tag/TagManager";
 import { LoadingState } from "../components/ui/shared/LoadingState";
@@ -17,15 +18,22 @@ const TagsPage = () => {
 
 	const createMutation = useMutation({
 		mutationFn: (values) => createTag(token, values),
-		onSuccess: invalidate,
+		onSuccess: () => {
+			toast.success("Tag created");
+			invalidate();
+		},
 	});
 	const updateMutation = useMutation({
 		mutationFn: ({ tagId, values }) => updateTag(token, tagId, values),
-		onSuccess: invalidate,
+		onSuccess: () => {
+			toast.success("Tag updated");
+			invalidate();
+		},
 	});
 	const deleteMutation = useMutation({
 		mutationFn: (tagId) => deleteTag(token, tagId),
 		onSuccess: () => {
+			toast.success("Tag deleted");
 			invalidate();
 			queryClient.invalidateQueries({ queryKey: ["projects"] });
 		},

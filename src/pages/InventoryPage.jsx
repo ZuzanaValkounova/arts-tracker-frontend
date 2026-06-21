@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { InventoryList } from "../components/inventory/InventoryList";
 import { InventoryFilters } from "../components/inventory/InventoryFilters";
 import { InventoryForm } from "../components/inventory/InventoryForm";
-import { Modal } from "../components/ui/shared/Modal";
+import { FormDialog } from "../components/ui/shared/FormDialog";
 import { ConfirmDialog } from "../components/ui/shared/ConfirmDialog";
+import { NewButton } from "../components/ui/shared/NewButton";
 import { LoadingState } from "../components/ui/shared/LoadingState";
 import { ErrorState } from "../components/ui/shared/ErrorState";
 
@@ -51,6 +53,7 @@ const InventoryPage = () => {
 				? updateInventoryItem(token, editedItem._id, values)
 				: createInventoryItem(token, values),
 		onSuccess: () => {
+			toast.success(editedItem ? "Item updated" : "Item created");
 			invalidate();
 			closeForm();
 		},
@@ -58,7 +61,10 @@ const InventoryPage = () => {
 
 	const deleteMutation = useMutation({
 		mutationFn: (itemId) => deleteInventoryItem(token, itemId),
-		onSuccess: invalidate,
+		onSuccess: () => {
+			toast.success("Item deleted");
+			invalidate();
+		},
 	});
 
 	const closeForm = () => {
@@ -74,12 +80,7 @@ const InventoryPage = () => {
 		<div className="flex flex-col gap-4">
 			<div className="flex items-center justify-between">
 				<h1 className="text-xl font-bold">Inventory</h1>
-				<button
-					type="button"
-					onClick={() => setFormOpen(true)}
-					className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700">
-					+ New item
-				</button>
+				<NewButton label="New item" onClick={() => setFormOpen(true)} />
 			</div>
 
 			<InventoryFilters
@@ -97,11 +98,11 @@ const InventoryPage = () => {
 				onDelete={setItemToDelete}
 			/>
 
-			<Modal
+			<FormDialog
 				open={formOpen}
 				onClose={closeForm}
 				title={editedItem ? "Edit item" : "New inventory item"}
-				widthClass="max-w-2xl">
+				className="sm:max-w-2xl">
 				<InventoryForm
 					key={editedItem?._id ?? "new"}
 					initialValues={editedItem ?? undefined}
@@ -113,7 +114,7 @@ const InventoryPage = () => {
 				{saveMutation.isError && (
 					<p className="mt-2 text-xs text-red-600">{saveMutation.error.message}</p>
 				)}
-			</Modal>
+			</FormDialog>
 
 			<ConfirmDialog
 				open={Boolean(itemToDelete)}

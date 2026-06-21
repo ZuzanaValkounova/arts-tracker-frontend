@@ -1,7 +1,9 @@
 import "./App.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, MutationCache } from "@tanstack/react-query";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { toast } from "sonner";
 
+import { Toaster } from "./components/ui/sonner";
 import { AuthContextProvider } from "./contexts/AuthContext";
 import { AppLayout } from "./components/layout/AppLayout";
 import { RequireAuth } from "./components/layout/RequireAuth";
@@ -21,6 +23,9 @@ const queryClient = new QueryClient({
 			refetchOnWindowFocus: false,
 		},
 	},
+	mutationCache: new MutationCache({
+		onError: (error) => toast.error(error?.message ?? "Something went wrong"),
+	}),
 });
 
 const router = createBrowserRouter([
@@ -49,6 +54,7 @@ export function App() {
 		<QueryClientProvider client={queryClient}>
 			<AuthContextProvider>
 				<RouterProvider router={router} />
+				<Toaster richColors closeButton />
 			</AuthContextProvider>
 		</QueryClientProvider>
 	);

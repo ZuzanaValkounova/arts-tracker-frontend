@@ -1,7 +1,9 @@
+import { cn } from "@/lib/utils";
+
 const SIZE_CLASSES = {
-	sm: "h-4 w-4",
-	md: "h-6 w-6",
-	lg: "h-8 w-8",
+	sm: "size-4",
+	md: "size-6",
+	lg: "size-8",
 };
 
 // presentational color square; pass onClick to make it interactive (e.g. palette in the moodboard)
@@ -12,9 +14,12 @@ const ColorSwatch = ({ color, size = "md", selected = false, onClick, title }) =
 			type={onClick ? "button" : undefined}
 			onClick={onClick}
 			title={title ?? color}
-			className={`shrink-0 rounded border ${SIZE_CLASSES[size]} ${
-				selected ? "ring-2 ring-blue-500 ring-offset-1" : "border-gray-300"
-			} ${onClick ? "cursor-pointer" : ""}`}
+			className={cn(
+				"shrink-0 rounded border",
+				SIZE_CLASSES[size],
+				selected ? "ring-2 ring-ring ring-offset-1" : "border-border",
+				onClick && "cursor-pointer",
+			)}
 			style={{ backgroundColor: color }}
 		/>
 	);

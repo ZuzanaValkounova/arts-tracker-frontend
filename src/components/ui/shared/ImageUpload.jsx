@@ -1,4 +1,9 @@
 import { useRef, useState } from "react";
+import { Upload, Trash2 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 const ImageUpload = ({ value, onSelect, onRemove, onSelectUrl, accept = "image/*" }) => {
 	const inputRef = useRef(null);
@@ -36,15 +41,17 @@ const ImageUpload = ({ value, onSelect, onRemove, onSelectUrl, accept = "image/*
 				}}
 				onDragLeave={() => setDragOver(false)}
 				onDrop={handleDrop}
-				className={`flex min-h-32 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed p-3 text-sm text-gray-500 ${
-					dragOver ? "border-blue-400 bg-blue-50" : "border-gray-300 hover:border-gray-400"
-				}`}>
+				className={cn(
+					"flex min-h-32 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed p-3 text-sm text-muted-foreground transition-colors",
+					dragOver ? "border-ring bg-accent" : "border-input hover:border-ring",
+				)}>
 				{preview ? (
 					<img src={preview} alt="Preview" className="max-h-40 rounded object-contain" />
 				) : (
 					<>
+						<Upload className="size-5" />
 						<span>Drop an image here or click to browse</span>
-						<span className="text-xs text-gray-400">{accept}</span>
+						<span className="text-xs text-muted-foreground/70">{accept}</span>
 					</>
 				)}
 				<input
@@ -57,33 +64,37 @@ const ImageUpload = ({ value, onSelect, onRemove, onSelectUrl, accept = "image/*
 			</div>
 			{onSelectUrl && (
 				<div className="flex gap-2">
-					<input
+					<Input
 						type="url"
 						value={urlInput}
 						onChange={(e) => setUrlInput(e.target.value)}
 						placeholder="...or paste an image URL"
-						className="flex-1 rounded border border-gray-300 px-2 py-1 text-xs"
+						className="h-7 flex-1"
 					/>
-					<button
+					<Button
 						type="button"
+						variant="outline"
+						size="sm"
 						disabled={!urlInput}
 						onClick={() => {
 							setLocalPreview(urlInput);
 							onSelectUrl(urlInput);
 							setUrlInput("");
-						}}
-						className="rounded border border-gray-300 px-2 py-1 text-xs disabled:opacity-50">
+						}}>
 						Use URL
-					</button>
+					</Button>
 				</div>
 			)}
 			{(preview || value) && onRemove && (
-				<button
+				<Button
 					type="button"
-					onClick={handleRemove}
-					className="self-start text-xs text-red-500 hover:text-red-700">
+					variant="ghost"
+					size="sm"
+					className="self-start text-destructive hover:text-destructive"
+					onClick={handleRemove}>
+					<Trash2 />
 					Remove image
-				</button>
+				</Button>
 			)}
 		</div>
 	);

@@ -1,3 +1,6 @@
+import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 // tag: { _id, name, color }
 const TagChip = ({ tag, onRemove, onClick, selected = false }) => {
 	const Tag = onClick ? "button" : "span";
@@ -5,13 +8,14 @@ const TagChip = ({ tag, onRemove, onClick, selected = false }) => {
 		<Tag
 			type={onClick ? "button" : undefined}
 			onClick={onClick}
-			className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs ${
-				selected ? "border-blue-400 bg-blue-50" : "border-gray-200 bg-white"
-			} ${onClick ? "cursor-pointer hover:border-gray-400" : ""}`}
-		>
+			className={cn(
+				"inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors",
+				selected ? "border-primary bg-primary/10 text-foreground" : "border-border bg-background",
+				onClick && "cursor-pointer hover:border-ring",
+			)}>
 			<span
-				className="h-2 w-2 rounded-full"
-				style={{ backgroundColor: tag.color ?? "#9ca3af" }}
+				className="size-2 rounded-full"
+				style={{ backgroundColor: tag.color ?? "var(--muted-foreground)" }}
 			/>
 			{tag.name}
 			{onRemove && (
@@ -21,10 +25,9 @@ const TagChip = ({ tag, onRemove, onClick, selected = false }) => {
 						e.stopPropagation();
 						onRemove(tag._id);
 					}}
-					className="ml-0.5 text-gray-400 hover:text-gray-700"
-					aria-label={`Remove tag ${tag.name}`}
-				>
-					×
+					className="ml-0.5 text-muted-foreground hover:text-foreground"
+					aria-label={`Remove tag ${tag.name}`}>
+					<X className="size-3" />
 				</button>
 			)}
 		</Tag>

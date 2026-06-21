@@ -1,5 +1,11 @@
 import { useState } from "react";
+import { ImageIcon, Link as LinkIcon } from "lucide-react";
+
 import { ImageUpload } from "../ui/shared/ImageUpload";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 // type=link -> url required; type=image -> file (multipart) or imageUrl
 const ResourceForm = ({ initialValues, projectId, onSubmit, onCancel, loading }) => {
@@ -28,31 +34,30 @@ const ResourceForm = ({ initialValues, projectId, onSubmit, onCancel, loading })
 
 	return (
 		<form onSubmit={handleSubmit} className="flex flex-col gap-3">
-			<div className="flex gap-1 self-start rounded-lg border border-gray-300 p-0.5">
-				{["image", "link"].map((option) => (
-					<button
-						key={option}
-						type="button"
-						onClick={() => setType(option)}
-						className={`rounded-md px-3 py-1 text-sm ${
-							type === option ? "bg-gray-900 text-white" : "text-gray-600 hover:bg-gray-100"
-						}`}>
-						{option === "image" ? "🖼️ Image" : "🔗 Link"}
-					</button>
-				))}
-			</div>
+			<ToggleGroup
+				type="single"
+				variant="outline"
+				value={type}
+				onValueChange={(next) => next && setType(next)}
+				className="self-start">
+				<ToggleGroupItem value="image" className="px-3">
+					<ImageIcon /> Image
+				</ToggleGroupItem>
+				<ToggleGroupItem value="link" className="px-3">
+					<LinkIcon /> Link
+				</ToggleGroupItem>
+			</ToggleGroup>
 
 			{type === "link" ? (
-				<label className="flex flex-col gap-1 text-sm">
-					<span className="text-xs font-medium text-gray-600">URL *</span>
-					<input
+				<div className="flex flex-col gap-1.5">
+					<Label>URL *</Label>
+					<Input
 						type="url"
 						value={url}
 						onChange={(e) => setUrl(e.target.value)}
 						placeholder="https://…"
-						className="rounded border border-gray-300 px-2 py-1.5 text-sm"
 					/>
-				</label>
+				</div>
 			) : (
 				<ImageUpload
 					value={initialValues?.type === "image" ? initialValues.url : null}
@@ -61,29 +66,18 @@ const ResourceForm = ({ initialValues, projectId, onSubmit, onCancel, loading })
 				/>
 			)}
 
-			<label className="flex flex-col gap-1 text-sm">
-				<span className="text-xs font-medium text-gray-600">Description</span>
-				<input
-					type="text"
-					value={description}
-					onChange={(e) => setDescription(e.target.value)}
-					className="rounded border border-gray-300 px-2 py-1.5 text-sm"
-				/>
-			</label>
+			<div className="flex flex-col gap-1.5">
+				<Label>Description</Label>
+				<Input value={description} onChange={(e) => setDescription(e.target.value)} />
+			</div>
 
 			<div className="flex justify-end gap-2 pt-2">
-				<button
-					type="button"
-					onClick={onCancel}
-					className="rounded border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50">
+				<Button type="button" variant="outline" onClick={onCancel}>
 					Cancel
-				</button>
-				<button
-					type="submit"
-					disabled={!canSubmit || loading}
-					className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700 disabled:opacity-50">
+				</Button>
+				<Button type="submit" disabled={!canSubmit || loading}>
 					{loading ? "Saving…" : initialValues ? "Save" : "Add"}
-				</button>
+				</Button>
 			</div>
 		</form>
 	);

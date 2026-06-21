@@ -1,12 +1,25 @@
 import { useState } from "react";
+import {
+	MousePointer2,
+	Image as ImageIcon,
+	Type,
+	Palette,
+	Paintbrush,
+	Plus,
+	Trash2,
+} from "lucide-react";
+
 import { ColorSwatch } from "../ui/shared/ColorSwatch";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const TOOLS = [
-	{ id: "select", label: "Select", icon: "🖱️" },
-	{ id: "image", label: "Image", icon: "🖼️" },
-	{ id: "text", label: "Text", icon: "🅣" },
-	{ id: "color", label: "Color tile", icon: "🎨" },
-	{ id: "draw", label: "Draw", icon: "✏️" },
+	{ id: "select", label: "Select", icon: MousePointer2 },
+	{ id: "image", label: "Image", icon: ImageIcon },
+	{ id: "text", label: "Text", icon: Type },
+	{ id: "color", label: "Color tile", icon: Palette },
+	{ id: "draw", label: "Draw", icon: Paintbrush },
 ];
 
 // draw, text and color tools all need a current color to work with.
@@ -22,22 +35,19 @@ const MoodboardToolbar = ({
 	const [newColor, setNewColor] = useState("#3b82f6");
 
 	return (
-		<div className="flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-white p-2">
-			<div className="flex gap-1">
+		<div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-2">
+			<ToggleGroup
+				type="single"
+				variant="outline"
+				value={activeTool}
+				onValueChange={(next) => next && onToolChange(next)}>
 				{TOOLS.map((tool) => (
-					<button
-						key={tool.id}
-						type="button"
-						title={tool.label}
-						onClick={() => onToolChange(tool.id)}
-						className={`rounded-md px-2.5 py-1.5 text-sm ${
-							activeTool === tool.id ? "bg-gray-900 text-white" : "hover:bg-gray-100"
-						}`}>
-						{tool.icon}
-					</button>
+					<ToggleGroupItem key={tool.id} value={tool.id} aria-label={tool.label} title={tool.label}>
+						<tool.icon />
+					</ToggleGroupItem>
 				))}
-			</div>
-			<span className="h-6 w-px bg-gray-200" />
+			</ToggleGroup>
+			<Separator orientation="vertical" className="h-6" />
 			<div className="flex items-center gap-1.5">
 				{palette.map((hex) => (
 					<ColorSwatch
@@ -52,22 +62,23 @@ const MoodboardToolbar = ({
 					type="color"
 					value={newColor}
 					onChange={(e) => setNewColor(e.target.value)}
-					className="h-5 w-5 cursor-pointer"
+					className="size-5 cursor-pointer rounded"
 				/>
-				<button
-					type="button"
-					onClick={() => onAddColor(newColor)}
-					className="text-xs text-gray-500 hover:text-gray-800">
-					+ Add
-				</button>
+				<Button type="button" variant="ghost" size="xs" onClick={() => onAddColor(newColor)}>
+					<Plus />
+					Add
+				</Button>
 			</div>
 			{onDeleteSelected && (
-				<button
+				<Button
 					type="button"
-					onClick={onDeleteSelected}
-					className="ml-auto rounded border border-red-300 px-2 py-1 text-xs text-red-600 hover:bg-red-50">
+					variant="destructive"
+					size="sm"
+					className="ml-auto"
+					onClick={onDeleteSelected}>
+					<Trash2 />
 					Delete selected
-				</button>
+				</Button>
 			)}
 		</div>
 	);

@@ -11,7 +11,7 @@ const TaskListView = ({ tasks, onToggleComplete, onEdit, onDelete, onAddSubtask 
 	}
 
 	return (
-		<div className="rounded-lg border border-gray-200 bg-white p-2">
+		<div className="rounded-lg border bg-card p-2">
 			{tree.map((task) => (
 				<TaskItem
 					key={task._id}

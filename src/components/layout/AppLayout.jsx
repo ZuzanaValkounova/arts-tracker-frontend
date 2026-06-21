@@ -1,5 +1,7 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { Sidebar } from "./Sidebar";
@@ -23,13 +25,18 @@ const AppLayout = () => {
 	};
 
 	return (
-		<TooltipProvider>
-			<div className="flex min-h-screen bg-gray-50">
+		<TooltipProvider delayDuration={0}>
+			<SidebarProvider defaultOpen={false}>
 				<Sidebar footer={<UserMenu user={userQuery.data} onLogout={handleLogout} />} />
-				<main className="flex-1 overflow-y-auto p-6">
-					<Outlet />
-				</main>
-			</div>
+				<SidebarInset>
+					<header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+						<SidebarTrigger />
+					</header>
+					<main className="flex-1 overflow-y-auto p-6">
+						<Outlet />
+					</main>
+				</SidebarInset>
+			</SidebarProvider>
 		</TooltipProvider>
 	);
 };

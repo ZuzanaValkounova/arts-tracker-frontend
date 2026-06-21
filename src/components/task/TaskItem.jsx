@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { ChevronDown, ChevronRight, Plus, Pencil, Trash2 } from "lucide-react";
 
 import { StatusBadge } from "../ui/shared/StatusBadge";
 import { PriorityBadge } from "../ui/shared/PriorityBadge";
+import { Button } from "@/components/ui/button";
 import { isOverdue } from "../../utils/tasks";
+import { cn } from "@/lib/utils";
 
 // one row in the list view; renders nested subtasks recursively via task.children
 const TaskItem = ({ task, depth = 0, onToggleComplete, onEdit, onDelete, onAddSubtask }) => {
@@ -13,53 +16,65 @@ const TaskItem = ({ task, depth = 0, onToggleComplete, onEdit, onDelete, onAddSu
 	return (
 		<div>
 			<div
-				className="group flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-gray-50"
+				className="group flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-muted"
 				style={{ paddingLeft: `${depth * 24 + 8}px` }}>
 				<button
 					type="button"
 					onClick={() => setExpanded((prev) => !prev)}
-					className={`w-4 text-xs text-gray-400 ${hasChildren ? "" : "invisible"}`}
+					className={cn(
+						"flex w-4 items-center justify-center text-muted-foreground",
+						!hasChildren && "invisible",
+					)}
 					aria-label={expanded ? "Collapse" : "Expand"}>
-					{expanded ? "▾" : "▸"}
+					{expanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
 				</button>
 				<input
 					type="checkbox"
 					checked={completed}
 					onChange={() => onToggleComplete(task._id)}
-					className="h-4 w-4 cursor-pointer"
+					className="size-4 cursor-pointer accent-primary"
 				/>
-				<span className={`flex-1 text-sm ${completed ? "text-gray-400 line-through" : ""}`}>
+				<span className={cn("flex-1 text-sm", completed && "text-muted-foreground line-through")}>
 					{task.name}
 				</span>
 				{task.deadline && (
-					<span className={`text-xs ${isOverdue(task) ? "text-red-600" : "text-gray-400"}`}>
+					<span
+						className={cn(
+							"text-xs",
+							isOverdue(task) ? "text-destructive" : "text-muted-foreground",
+						)}>
 						{new Date(task.deadline).toLocaleDateString()}
 					</span>
 				)}
 				<PriorityBadge priority={task.priority} />
 				<StatusBadge status={task.status} size="sm" />
-				<div className="invisible flex gap-1 group-hover:visible">
+				<div className="invisible flex gap-0.5 group-hover:visible">
 					{onAddSubtask && (
-						<button
+						<Button
 							type="button"
-							onClick={() => onAddSubtask(task)}
-							className="text-xs text-gray-400 hover:text-gray-700"
-							title="Add subtask">
-							＋
-						</button>
+							variant="ghost"
+							size="icon-xs"
+							aria-label="Add subtask"
+							onClick={() => onAddSubtask(task)}>
+							<Plus />
+						</Button>
 					)}
-					<button
+					<Button
 						type="button"
-						onClick={() => onEdit(task)}
-						className="text-xs text-gray-400 hover:text-gray-700">
-						Edit
-					</button>
-					<button
+						variant="ghost"
+						size="icon-xs"
+						aria-label="Edit task"
+						onClick={() => onEdit(task)}>
+						<Pencil />
+					</Button>
+					<Button
 						type="button"
-						onClick={() => onDelete(task)}
-						className="text-xs text-red-400 hover:text-red-600">
-						Delete
-					</button>
+						variant="ghost"
+						size="icon-xs"
+						aria-label="Delete task"
+						onClick={() => onDelete(task)}>
+						<Trash2 />
+					</Button>
 				</div>
 			</div>
 			{hasChildren && expanded && (

@@ -1,3 +1,5 @@
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+
 const VIEW_LABELS = {
 	list: "List",
 	kanban: "Kanban",
@@ -6,19 +8,18 @@ const VIEW_LABELS = {
 
 const ViewSwitcher = ({ value, onChange, options = ["list", "kanban"] }) => {
 	return (
-		<div className="inline-flex rounded-lg border border-gray-300 p-0.5">
+		<ToggleGroup
+			type="single"
+			variant="outline"
+			size="sm"
+			value={value}
+			onValueChange={(next) => next && onChange(next)}>
 			{options.map((view) => (
-				<button
-					key={view}
-					type="button"
-					onClick={() => onChange(view)}
-					className={`rounded-md px-3 py-1 text-sm ${
-						value === view ? "bg-gray-900 text-white" : "text-gray-600 hover:bg-gray-100"
-					}`}>
+				<ToggleGroupItem key={view} value={view} className="px-3">
 					{VIEW_LABELS[view] ?? view}
-				</button>
+				</ToggleGroupItem>
 			))}
-		</div>
+		</ToggleGroup>
 	);
 };
 

@@ -1,6 +1,9 @@
-import { Modal } from "../ui/shared/Modal";
+import { Plus } from "lucide-react";
+
+import { FormDialog } from "../ui/shared/FormDialog";
 import { StatusBadge } from "../ui/shared/StatusBadge";
 import { PriorityBadge } from "../ui/shared/PriorityBadge";
+import { Button } from "@/components/ui/button";
 import { TaskListView } from "./TaskListView";
 
 // target for onOpen(taskId) from the kanban/list
@@ -20,30 +23,28 @@ const TaskDetailDialog = ({
 	if (!task) return null;
 
 	return (
-		<Modal open={open} onClose={onClose} title={task.name} widthClass="max-w-2xl">
+		<FormDialog open={open} onClose={onClose} title={task.name} className="sm:max-w-2xl">
 			<div className="flex flex-col gap-3">
 				<div className="flex items-center gap-2">
 					<StatusBadge status={task.status} />
 					<PriorityBadge priority={task.priority} />
 					{task.deadline && (
-						<span className="text-xs text-gray-500">
+						<span className="text-xs text-muted-foreground">
 							Due {new Date(task.deadline).toLocaleDateString()}
 						</span>
 					)}
 				</div>
 				{task.description && (
-					<p className="whitespace-pre-wrap text-sm text-gray-600">{task.description}</p>
+					<p className="whitespace-pre-wrap text-sm text-muted-foreground">{task.description}</p>
 				)}
 				<div>
 					<div className="mb-1 flex items-center justify-between">
 						<h3 className="text-sm font-semibold">Subtasks</h3>
 						{onAddSubtask && (
-							<button
-								type="button"
-								onClick={() => onAddSubtask(task)}
-								className="text-xs text-blue-600 hover:underline">
-								+ Add subtask
-							</button>
+							<Button type="button" variant="ghost" size="sm" onClick={() => onAddSubtask(task)}>
+								<Plus />
+								Add subtask
+							</Button>
 						)}
 					</div>
 					<TaskListView
@@ -54,22 +55,16 @@ const TaskDetailDialog = ({
 						onAddSubtask={onAddSubtask}
 					/>
 				</div>
-				<div className="flex justify-end gap-2 border-t border-gray-100 pt-3">
-					<button
-						type="button"
-						onClick={() => onDelete(task)}
-						className="rounded border border-red-300 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50">
+				<div className="flex justify-end gap-2 border-t pt-3">
+					<Button type="button" variant="destructive" onClick={() => onDelete(task)}>
 						Delete
-					</button>
-					<button
-						type="button"
-						onClick={() => onEdit(task)}
-						className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700">
+					</Button>
+					<Button type="button" onClick={() => onEdit(task)}>
 						Edit
-					</button>
+					</Button>
 				</div>
 			</div>
-		</Modal>
+		</FormDialog>
 	);
 };
 

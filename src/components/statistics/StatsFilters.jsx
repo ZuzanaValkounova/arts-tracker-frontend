@@ -1,5 +1,14 @@
 import { DateField } from "../ui/shared/DateField";
 import { CategoryPicker } from "../ui/shared/CategoryPicker";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 
 const iso = (date) => date.toISOString().slice(0, 10);
 
@@ -10,6 +19,10 @@ const PRESETS = [
 	{ id: "ytd", label: "This year" },
 	{ id: "all", label: "All time" },
 ];
+
+const GRANULARITY_AUTO = "auto";
+const PROJECT_ALL = "all";
+const TASKS_ALL = "all";
 
 const presetRange = (id, projects) => {
 	const today = new Date();
@@ -34,68 +47,82 @@ const StatsFilters = ({ filters, onChange, categories = [], projects = [] }) => 
 	const applyPreset = (id) => set({ ...presetRange(id, projects), granularity: "" });
 
 	return (
-		<div className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-3">
+		<div className="flex flex-col gap-3 rounded-lg border bg-card p-3">
 			<div className="flex flex-wrap items-center gap-1.5">
-				<span className="mr-1 text-xs font-medium text-gray-600">Period:</span>
+				<span className="mr-1 text-xs font-medium text-muted-foreground">Period:</span>
 				{PRESETS.map((preset) => (
-					<button
+					<Button
 						key={preset.id}
 						type="button"
-						onClick={() => applyPreset(preset.id)}
-						className="rounded-full border border-gray-300 px-2.5 py-0.5 text-xs text-gray-600 hover:border-gray-500 hover:bg-gray-50">
+						variant="outline"
+						size="xs"
+						className="rounded-full"
+						onClick={() => applyPreset(preset.id)}>
 						{preset.label}
-					</button>
+					</Button>
 				))}
 			</div>
 
 			<div className="flex flex-wrap items-end gap-3">
 				<DateField label="From" value={filters.from} onChange={(date) => set({ from: date })} />
 				<DateField label="To" value={filters.to} onChange={(date) => set({ to: date })} />
-				<label className="flex flex-col gap-1 text-sm">
-					<span className="text-xs font-medium text-gray-600">Granularity</span>
-					<select
-						value={filters.granularity ?? ""}
-						onChange={(e) => set({ granularity: e.target.value })}
-						className="rounded border border-gray-300 px-2 py-1.5 text-sm">
-						<option value="">Auto</option>
-						<option value="day">Day</option>
-						<option value="week">Week</option>
-						<option value="month">Month</option>
-					</select>
-				</label>
-				<label className="flex flex-col gap-1 text-sm">
-					<span className="text-xs font-medium text-gray-600">Category</span>
+				<div className="flex flex-col gap-1.5">
+					<Label>Granularity</Label>
+					<Select
+						value={filters.granularity || GRANULARITY_AUTO}
+						onValueChange={(next) => set({ granularity: next === GRANULARITY_AUTO ? "" : next })}>
+						<SelectTrigger className="w-32">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value={GRANULARITY_AUTO}>Auto</SelectItem>
+							<SelectItem value="day">Day</SelectItem>
+							<SelectItem value="week">Week</SelectItem>
+							<SelectItem value="month">Month</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+				<div className="flex flex-col gap-1.5">
+					<Label>Category</Label>
 					<CategoryPicker
 						value={filters.categoryId ?? null}
 						options={categories}
 						onChange={(id) => set({ categoryId: id })}
 					/>
-				</label>
-				<label className="flex flex-col gap-1 text-sm">
-					<span className="text-xs font-medium text-gray-600">Project</span>
-					<select
-						value={filters.projectId ?? ""}
-						onChange={(e) => set({ projectId: e.target.value || null })}
-						className="rounded border border-gray-300 px-2 py-1.5 text-sm">
-						<option value="">All projects</option>
-						{projects.map((project) => (
-							<option key={project._id} value={project._id}>
-								{project.name}
-							</option>
-						))}
-					</select>
-				</label>
-				<label className="flex flex-col gap-1 text-sm">
-					<span className="text-xs font-medium text-gray-600">Tasks</span>
-					<select
-						value={filters.taskType ?? ""}
-						onChange={(e) => set({ taskType: e.target.value || null })}
-						className="rounded border border-gray-300 px-2 py-1.5 text-sm">
-						<option value="">All tasks</option>
-						<option value="topLevel">Top-level only</option>
-						<option value="subtasks">Subtasks only</option>
-					</select>
-				</label>
+				</div>
+				<div className="flex flex-col gap-1.5">
+					<Label>Project</Label>
+					<Select
+						value={filters.projectId || PROJECT_ALL}
+						onValueChange={(next) => set({ projectId: next === PROJECT_ALL ? null : next })}>
+						<SelectTrigger className="w-44">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value={PROJECT_ALL}>All projects</SelectItem>
+							{projects.map((project) => (
+								<SelectItem key={project._id} value={project._id}>
+									{project.name}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
+				<div className="flex flex-col gap-1.5">
+					<Label>Tasks</Label>
+					<Select
+						value={filters.taskType || TASKS_ALL}
+						onValueChange={(next) => set({ taskType: next === TASKS_ALL ? null : next })}>
+						<SelectTrigger className="w-40">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value={TASKS_ALL}>All tasks</SelectItem>
+							<SelectItem value="topLevel">Top-level only</SelectItem>
+							<SelectItem value="subtasks">Subtasks only</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
 			</div>
 		</div>
 	);

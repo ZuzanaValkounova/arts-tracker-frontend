@@ -34,7 +34,7 @@ const StatisticsDashboard = ({ data }) => {
 				<TagChart data={data.projects?.byTag ?? []} />
 			</div>
 
-			<h2 className="text-sm font-semibold text-gray-700">Activity over time</h2>
+			<h2 className="text-sm font-semibold text-foreground">Activity over time</h2>
 			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 				<ActivityChart
 					title="Projects — created vs completed"

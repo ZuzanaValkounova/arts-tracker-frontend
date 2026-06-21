@@ -21,10 +21,10 @@ const StatusPieChart = ({ data }) => {
 		}));
 
 	return (
-		<div className="rounded-lg border border-gray-200 bg-white p-4">
+		<div className="rounded-lg border bg-card p-4">
 			<h3 className="mb-3 text-sm font-semibold">Projects by status</h3>
 			{chartData.length === 0 ? (
-				<p className="text-sm text-gray-400">No data</p>
+				<p className="text-sm text-muted-foreground">No data</p>
 			) : (
 				<ResponsiveContainer width="100%" height={220}>
 					<PieChart>

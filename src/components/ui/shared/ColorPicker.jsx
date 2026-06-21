@@ -1,4 +1,5 @@
 import { ColorSwatch } from "./ColorSwatch";
+import { Button } from "@/components/ui/button";
 
 // project accent colors
 const PRESET_COLORS = [
@@ -32,18 +33,15 @@ const ColorPicker = ({ value, onChange, presets = PRESET_COLORS }) => {
 					className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
 				/>
 				<span
-					className="block h-6 w-6 rounded border border-dashed border-gray-400 text-center text-sm leading-5 text-gray-400"
+					className="block size-6 rounded border border-dashed border-input text-center text-sm leading-5 text-muted-foreground"
 					style={value && !presets.includes(value) ? { backgroundColor: value } : undefined}>
 					{value && !presets.includes(value) ? "" : "+"}
 				</span>
 			</label>
 			{value && (
-				<button
-					type="button"
-					onClick={() => onChange(null)}
-					className="text-xs text-gray-400 hover:text-gray-600">
+				<Button type="button" variant="ghost" size="xs" onClick={() => onChange(null)}>
 					Clear
-				</button>
+				</Button>
 			)}
 		</div>
 	);

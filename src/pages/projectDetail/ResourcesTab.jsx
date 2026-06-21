@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { ResourcesGrid } from "../../components/resource/ResourcesGrid";
 import { ResourceForm } from "../../components/resource/ResourceForm";
-import { Modal } from "../../components/ui/shared/Modal";
+import { FormDialog } from "../../components/ui/shared/FormDialog";
 import { ConfirmDialog } from "../../components/ui/shared/ConfirmDialog";
+import { NewButton } from "../../components/ui/shared/NewButton";
 import { LoadingState } from "../../components/ui/shared/LoadingState";
 import { ErrorState } from "../../components/ui/shared/ErrorState";
 
@@ -29,6 +31,7 @@ const ResourcesTab = ({ project }) => {
 	const createMutation = useMutation({
 		mutationFn: (values) => createResource(token, values),
 		onSuccess: () => {
+			toast.success("Resource added");
 			invalidate();
 			setFormOpen(false);
 		},
@@ -36,7 +39,10 @@ const ResourcesTab = ({ project }) => {
 
 	const deleteMutation = useMutation({
 		mutationFn: (resourceId) => deleteResource(token, resourceId),
-		onSuccess: invalidate,
+		onSuccess: () => {
+			toast.success("Resource removed");
+			invalidate();
+		},
 	});
 
 	if (resourcesQuery.isLoading) return <LoadingState />;
@@ -46,24 +52,19 @@ const ResourcesTab = ({ project }) => {
 	return (
 		<div className="flex flex-col gap-3">
 			<div className="flex justify-end">
-				<button
-					type="button"
-					onClick={() => setFormOpen(true)}
-					className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700">
-					+ Add image or link
-				</button>
+				<NewButton label="New resource" onClick={() => setFormOpen(true)} />
 			</div>
 
 			<ResourcesGrid resources={resourcesQuery.data ?? []} onDelete={setResourceToDelete} />
 
-			<Modal open={formOpen} onClose={() => setFormOpen(false)} title="Add resource">
+			<FormDialog open={formOpen} onClose={() => setFormOpen(false)} title="New resource">
 				<ResourceForm
 					projectId={projectId}
 					loading={createMutation.isPending}
 					onSubmit={createMutation.mutate}
 					onCancel={() => setFormOpen(false)}
 				/>
-			</Modal>
+			</FormDialog>
 
 			<ConfirmDialog
 				open={Boolean(resourceToDelete)}

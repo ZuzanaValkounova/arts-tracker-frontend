@@ -1,12 +1,23 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Search } from "lucide-react";
 
 import { ResourcesGrid } from "../components/resource/ResourcesGrid";
 import { ResourceForm } from "../components/resource/ResourceForm";
-import { Modal } from "../components/ui/shared/Modal";
+import { FormDialog } from "../components/ui/shared/FormDialog";
 import { ConfirmDialog } from "../components/ui/shared/ConfirmDialog";
+import { NewButton } from "../components/ui/shared/NewButton";
 import { LoadingState } from "../components/ui/shared/LoadingState";
 import { ErrorState } from "../components/ui/shared/ErrorState";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 
 import { getResources, createResource, deleteResource } from "../api/resources";
 import { useAuth } from "../contexts/AuthContext";
@@ -34,6 +45,7 @@ const ResourcesPage = () => {
 	const createMutation = useMutation({
 		mutationFn: (values) => createResource(token, values),
 		onSuccess: () => {
+			toast.success("Resource added");
 			invalidate();
 			setFormOpen(false);
 		},
@@ -41,7 +53,10 @@ const ResourcesPage = () => {
 
 	const deleteMutation = useMutation({
 		mutationFn: (resourceId) => deleteResource(token, resourceId),
-		onSuccess: invalidate,
+		onSuccess: () => {
+			toast.success("Resource removed");
+			invalidate();
+		},
 	});
 
 	if (resourcesQuery.isLoading) return <LoadingState />;
@@ -52,41 +67,43 @@ const ResourcesPage = () => {
 		<div className="flex flex-col gap-4">
 			<div className="flex items-center justify-between">
 				<h1 className="text-xl font-bold">Resources</h1>
-				<button
-					type="button"
-					onClick={() => setFormOpen(true)}
-					className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700">
-					+ Add
-				</button>
+				<NewButton label="New resource" onClick={() => setFormOpen(true)} />
 			</div>
 
-			<div className="flex flex-wrap gap-3 rounded-lg border border-gray-200 bg-white p-3">
-				<input
-					type="search"
-					value={search}
-					onChange={(e) => updateParams({ search: e.target.value })}
-					placeholder="Search description…"
-					className="w-56 rounded border border-gray-300 px-2 py-1.5 text-sm"
-				/>
-				<select
-					value={type}
-					onChange={(e) => updateParams({ type: e.target.value })}
-					className="rounded border border-gray-300 px-2 py-1.5 text-sm">
-					<option value="">Images + links</option>
-					<option value="image">Images</option>
-					<option value="link">Links</option>
-				</select>
+			<div className="flex flex-wrap gap-3 rounded-lg border bg-card p-3">
+				<div className="relative w-56">
+					<Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+					<Input
+						type="search"
+						value={search}
+						onChange={(e) => updateParams({ search: e.target.value })}
+						placeholder="Search description…"
+						className="pl-8"
+					/>
+				</div>
+				<Select
+					value={type || "all"}
+					onValueChange={(next) => updateParams({ type: next === "all" ? null : next })}>
+					<SelectTrigger className="w-44">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value={"all"}>Images + links</SelectItem>
+						<SelectItem value="image">Images</SelectItem>
+						<SelectItem value="link">Links</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 
 			<ResourcesGrid resources={resourcesQuery.data ?? []} onDelete={setResourceToDelete} />
 
-			<Modal open={formOpen} onClose={() => setFormOpen(false)} title="Add resource">
+			<FormDialog open={formOpen} onClose={() => setFormOpen(false)} title="New resource">
 				<ResourceForm
 					loading={createMutation.isPending}
 					onSubmit={createMutation.mutate}
 					onCancel={() => setFormOpen(false)}
 				/>
-			</Modal>
+			</FormDialog>
 
 			<ConfirmDialog
 				open={Boolean(resourceToDelete)}

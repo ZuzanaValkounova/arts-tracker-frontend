@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { PRIORITY_META } from "../../../utils/constants";
 
 const PriorityBadge = ({ priority }) => {
@@ -5,10 +7,9 @@ const PriorityBadge = ({ priority }) => {
 	if (!meta) return null;
 
 	return (
-		<span
-			className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${meta.className}`}>
+		<Badge className={cn("rounded-full px-2 py-0.5 text-[11px]", meta.className)}>
 			{meta.label}
-		</span>
+		</Badge>
 	);
 };
 

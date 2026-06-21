@@ -1,18 +1,32 @@
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+
+const NONE = "__none__";
+
 // value: categoryId | null, options: [{ _id, name, icon }] from GET /api/categories
-const CategoryPicker = ({ value, options = [], onChange, allowEmpty = true }) => {
+const CategoryPicker = ({ value, options = [], onChange, allowEmpty = true, className }) => {
 	return (
-		<select
-			value={value ?? ""}
-			onChange={(e) => onChange(e.target.value || null)}
-			className="rounded border border-gray-300 px-2 py-1.5 text-sm"
-		>
-			{allowEmpty && <option value="">No category</option>}
-			{options.map((category) => (
-				<option key={category._id} value={category._id}>
-					{category.name}
-				</option>
-			))}
-		</select>
+		<Select
+			value={value ?? (allowEmpty ? NONE : undefined)}
+			onValueChange={(next) => onChange(next === NONE ? null : next)}>
+			<SelectTrigger className={cn("w-44", className)}>
+				<SelectValue placeholder="No category" />
+			</SelectTrigger>
+			<SelectContent>
+				{allowEmpty && <SelectItem value={NONE}>No category</SelectItem>}
+				{options.map((category) => (
+					<SelectItem key={category._id} value={category._id}>
+						{category.name}
+					</SelectItem>
+				))}
+			</SelectContent>
+		</Select>
 	);
 };
 

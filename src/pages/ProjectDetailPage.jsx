@@ -1,13 +1,14 @@
 import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { ProjectDetailHeader } from "../components/project/ProjectDetailHeader";
 import { ProjectTabs } from "../components/project/ProjectTabs";
 import { ProjectForm } from "../components/project/ProjectForm";
 import { ReflectionDialog } from "../components/project/ReflectionDialog";
 import { ReflectionCard } from "../components/project/ReflectionCard";
-import { Modal } from "../components/ui/shared/Modal";
+import { FormDialog } from "../components/ui/shared/FormDialog";
 import { ConfirmDialog } from "../components/ui/shared/ConfirmDialog";
 import { LoadingState } from "../components/ui/shared/LoadingState";
 import { ErrorState } from "../components/ui/shared/ErrorState";
@@ -65,6 +66,7 @@ const ProjectDetailPage = () => {
 	const updateMutation = useMutation({
 		mutationFn: (values) => updateProject(token, projectId, values),
 		onSuccess: (result) => {
+			toast.success("Project updated");
 			invalidateProject();
 			setEditOpen(false);
 			handleCascade(result);
@@ -74,6 +76,7 @@ const ProjectDetailPage = () => {
 	const deleteMutation = useMutation({
 		mutationFn: () => deleteProject(token, projectId),
 		onSuccess: () => {
+			toast.success("Project deleted");
 			queryClient.invalidateQueries({ queryKey: ["projects"] });
 			navigate("/");
 		},
@@ -87,6 +90,7 @@ const ProjectDetailPage = () => {
 			}
 		},
 		onSuccess: () => {
+			toast.success("Reflection saved");
 			invalidateProject();
 			setReflectionOpen(false);
 		},
@@ -138,11 +142,11 @@ const ProjectDetailPage = () => {
 			{tab === "materials" && <MaterialsTab project={project} />}
 			{tab === "resources" && <ResourcesTab project={project} />}
 
-			<Modal
+			<FormDialog
 				open={editOpen}
 				onClose={() => setEditOpen(false)}
 				title="Edit project"
-				widthClass="max-w-2xl">
+				className="sm:max-w-2xl">
 				<ProjectForm
 					key={project.updatedAt}
 					initialValues={project}
@@ -153,7 +157,7 @@ const ProjectDetailPage = () => {
 					onCreateTag={(name, color) => createTagMutation.mutate({ name, color })}
 					onCancel={() => setEditOpen(false)}
 				/>
-			</Modal>
+			</FormDialog>
 
 			<ReflectionDialog
 				key={`${reflectionOpen}-${project.updatedAt}`}

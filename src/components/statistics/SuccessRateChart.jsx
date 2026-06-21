@@ -6,7 +6,7 @@ const SuccessRateChart = ({ data }) => {
 	const chartData = [{ name: "success", value: rate }];
 
 	return (
-		<div className="rounded-lg border border-gray-200 bg-white p-4">
+		<div className="rounded-lg border bg-card p-4">
 			<h3 className="mb-3 text-sm font-semibold">Success rate</h3>
 			<div className="relative">
 				<ResponsiveContainer width="100%" height={220}>
@@ -15,8 +15,7 @@ const SuccessRateChart = ({ data }) => {
 						outerRadius="100%"
 						data={chartData}
 						startAngle={90}
-						endAngle={-270}
-					>
+						endAngle={-270}>
 						{/* domain 0–100 makes the bar length represent the percentage */}
 						<PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
 						<RadialBar background dataKey="value" cornerRadius={8} fill="#22c55e" angleAxisId={0} />

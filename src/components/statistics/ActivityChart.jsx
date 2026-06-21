@@ -17,10 +17,10 @@ const ActivityChart = ({ title, data, granularity }) => {
 	const formattedLabel = (value) => formatPeriodLabel(value, granularity);
 
 	return (
-		<div className="rounded-lg border border-gray-200 bg-white p-4">
+		<div className="rounded-lg border bg-card p-4">
 			<h3 className="mb-3 text-sm font-semibold">{title}</h3>
 			{!hasData ? (
-				<p className="text-sm text-gray-400">No activity in this period</p>
+				<p className="text-sm text-muted-foreground">No activity in this period</p>
 			) : (
 				<ResponsiveContainer width="100%" height={240}>
 					<AreaChart data={data} margin={{ top: 8, right: 8 }}>

@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { STATUS_META } from "../../../utils/constants";
 
 const SIZE_CLASSES = {
@@ -11,10 +13,7 @@ const StatusBadge = ({ status, size = "md" }) => {
 	if (!meta) return null;
 
 	return (
-		<span
-			className={`inline-flex items-center rounded-full font-medium ${meta.className} ${SIZE_CLASSES[size]}`}>
-			{meta.label}
-		</span>
+		<Badge className={cn("rounded-full", meta.className, SIZE_CLASSES[size])}>{meta.label}</Badge>
 	);
 };
 

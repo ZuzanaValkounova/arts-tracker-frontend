@@ -1,5 +1,16 @@
 import { useState } from "react";
-import { Modal } from "../ui/shared/Modal";
+
+import { FormDialog } from "../ui/shared/FormDialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 
 const AddMaterialDialog = ({ open, inventory = [], initialValues, onSubmit, onClose, loading }) => {
 	const [inventoryItemId, setInventoryItemId] = useState(initialValues?.inventoryItemId ?? "");
@@ -22,73 +33,68 @@ const AddMaterialDialog = ({ open, inventory = [], initialValues, onSubmit, onCl
 	};
 
 	return (
-		<Modal
+		<FormDialog
 			open={open}
 			onClose={onClose}
 			title={initialValues ? "Edit material" : "Add material"}
-			widthClass="max-w-md">
+			className="sm:max-w-md">
 			<form onSubmit={handleSubmit} className="flex flex-col gap-3">
-				<label className="flex flex-col gap-1 text-sm">
-					<span className="text-xs font-medium text-gray-600">Inventory item *</span>
-					<select
-						value={inventoryItemId}
-						onChange={(e) => setInventoryItemId(e.target.value)}
-						className="rounded border border-gray-300 px-2 py-1.5 text-sm">
-						<option value="">Select an item…</option>
-						{inventory.map((item) => (
-							<option key={item._id} value={item._id}>
-								{item.name}
-								{item.price != null ? ` (${item.price} ${item.currency})` : ""}
-							</option>
-						))}
-					</select>
-				</label>
+				<div className="flex flex-col gap-1.5">
+					<Label>Inventory item *</Label>
+					<Select value={inventoryItemId || undefined} onValueChange={setInventoryItemId}>
+						<SelectTrigger className="w-full">
+							<SelectValue placeholder="Select an item…" />
+						</SelectTrigger>
+						<SelectContent>
+							{inventory.map((item) => (
+								<SelectItem key={item._id} value={item._id}>
+									{item.name}
+									{item.price != null ? ` (${item.price} ${item.currency})` : ""}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
 				<div className="flex gap-4">
-					<label className="flex flex-col gap-1 text-sm">
-						<span className="text-xs font-medium text-gray-600">Quantity used</span>
-						<input
+					<div className="flex flex-col gap-1.5">
+						<Label>Quantity used</Label>
+						<Input
 							type="number"
 							min={0}
 							step="0.01"
 							value={quantity ?? ""}
 							onChange={(e) => setQuantity(e.target.value === "" ? null : Number(e.target.value))}
-							className="w-24 rounded border border-gray-300 px-2 py-1.5 text-sm"
+							className="w-24"
 						/>
-					</label>
-					<label className="flex flex-col gap-1 text-sm">
-						<span className="text-xs font-medium text-gray-600">Actual cost</span>
-						<input
+					</div>
+					<div className="flex flex-col gap-1.5">
+						<Label>Actual cost</Label>
+						<Input
 							type="number"
 							min={0}
 							step="0.01"
 							value={actualCost ?? ""}
 							onChange={(e) => setActualCost(e.target.value === "" ? null : Number(e.target.value))}
-							className="w-28 rounded border border-gray-300 px-2 py-1.5 text-sm"
+							className="w-28"
 						/>
-					</label>
+					</div>
 				</div>
 				{selectedItem && (
-					<p className="text-xs text-gray-500">
+					<p className="text-xs text-muted-foreground">
 						Estimated cost: {estimated.toLocaleString()} {selectedItem.currency}
 						{selectedItem.type === "tool" && " (tools don't count into estimates)"}
 					</p>
 				)}
 				<div className="flex justify-end gap-2 pt-2">
-					<button
-						type="button"
-						onClick={onClose}
-						className="rounded border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50">
+					<Button type="button" variant="outline" onClick={onClose}>
 						Cancel
-					</button>
-					<button
-						type="submit"
-						disabled={!inventoryItemId || loading}
-						className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700 disabled:opacity-50">
+					</Button>
+					<Button type="submit" disabled={!inventoryItemId || loading}>
 						{loading ? "Saving…" : initialValues ? "Save" : "Add"}
-					</button>
+					</Button>
 				</div>
 			</form>
-		</Modal>
+		</FormDialog>
 	);
 };
 
