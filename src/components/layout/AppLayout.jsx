@@ -33,7 +33,9 @@ const AppLayout = () => {
 						<SidebarTrigger />
 					</header>
 					<main className="flex-1 overflow-y-auto p-6">
-						<Outlet />
+						<div className="mx-auto w-full max-w-7xl">
+							<Outlet />
+						</div>
 					</main>
 				</SidebarInset>
 			</SidebarProvider>

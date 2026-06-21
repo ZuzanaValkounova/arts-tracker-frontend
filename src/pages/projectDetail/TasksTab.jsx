@@ -55,7 +55,19 @@ const TasksTab = ({ project, onCascade }) => {
 
 	const updateMutation = useMutation({
 		mutationFn: ({ taskId, values }) => updateTask(token, taskId, values),
-		onSuccess: handleMutationResult,
+		onMutate: ({ taskId, values }) => {
+			queryClient.cancelQueries({ queryKey: ["tasks", projectId] });
+			const previous = queryClient.getQueryData(["tasks", projectId]);
+			queryClient.setQueryData(["tasks", projectId], (old) =>
+				(old ?? []).map((task) => (task._id === taskId ? { ...task, ...values } : task)),
+			);
+			return { previous };
+		},
+		onError: (_err, _vars, context) => {
+			if (context?.previous) queryClient.setQueryData(["tasks", projectId], context.previous);
+		},
+		onSuccess: (result) => onCascade?.(result),
+		onSettled: () => invalidate(),
 	});
 
 	const deleteMutation = useMutation({

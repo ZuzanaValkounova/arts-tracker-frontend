@@ -1,23 +1,26 @@
-import { Trophy } from "lucide-react";
+import { Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// 1–5
+// 1–5 flames
 const DifficultyRating = ({ value = 0, onChange, readOnly = false }) => {
 	return (
-		<div className="inline-flex items-center gap-0.5" role={readOnly ? "img" : "radiogroup"}>
-			{[1, 2, 3, 4, 5].map((trophy) => (
+		<div
+			className="inline-flex items-center gap-0.5"
+			role={readOnly ? "img" : "radiogroup"}
+			aria-label={`Difficulty ${value} of 5`}>
+			{[1, 2, 3, 4, 5].map((level) => (
 				<button
-					key={trophy}
+					key={level}
 					type="button"
 					disabled={readOnly}
-					onClick={() => onChange?.(trophy === value ? null : trophy)}
+					onClick={() => onChange?.(level === value ? null : level)}
 					className={cn(
-						"leading-none",
-						trophy <= value ? "text-amber-400" : "text-muted-foreground/30",
-						readOnly ? "cursor-default" : "cursor-pointer hover:text-amber-500",
+						"leading-none transition-colors",
+						level <= value ? "text-orange-500" : "text-muted-foreground/30",
+						!readOnly && "cursor-pointer hover:text-orange-600",
 					)}
-					aria-label={`Difficulty ${trophy} of 5`}>
-					<Trophy className={cn("size-4", trophy <= value && "fill-current")} />
+					aria-label={`Difficulty ${level} of 5`}>
+					<Flame className={cn("size-5", level <= value && "fill-orange-500/80")} />
 				</button>
 			))}
 		</div>

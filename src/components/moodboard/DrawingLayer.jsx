@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { Layer, Line } from "react-konva";
+import { Layer, Path } from "react-konva";
+import { getStroke } from "perfect-freehand";
 
-// freehand drawing: listens on the stage while tool === "draw", renders the live stroke
-// and emits onDrawEnd(pathData, bbox) where pathData coordinates are relative to bbox
-// (so the resulting element can be moved/transformed via its own x/y)
-const DrawingLayer = ({ tool, color = "#1f2937", strokeWidth = 2, onDrawEnd }) => {
+import { DRAWING_INK, STROKE_OPTIONS, getSvgPathFromStroke } from "../../utils/moodboard";
+
+// freehand drawing via perfect-freehand: listens on the stage while tool === "draw",
+// renders the live filled stroke and emits onDrawEnd(pathData, bbox) where pathData is
+// a closed outline relative to bbox
+const DrawingLayer = ({ tool, color = DRAWING_INK, onDrawEnd }) => {
 	const layerRef = useRef(null);
 	const drawingRef = useRef(false);
-	const [points, setPoints] = useState([]);
+	const [points, setPoints] = useState([]); // array of [x, y]
 
 	useEffect(() => {
 		const stage = layerRef.current?.getStage();
@@ -29,10 +32,9 @@ const DrawingLayer = ({ tool, color = "#1f2937", strokeWidth = 2, onDrawEnd }) =
 			if (!drawingRef.current) return;
 			drawingRef.current = false;
 			setPoints((current) => {
-				if (current.length >= 4) {
-					// bounding box of the stroke
-					const xs = current.filter((_, i) => i % 2 === 0);
-					const ys = current.filter((_, i) => i % 2 === 1);
+				if (current.length >= 2) {
+					const xs = current.map((pos) => pos[0]);
+					const ys = current.map((pos) => pos[1]);
 					const minX = Math.min(...xs);
 					const minY = Math.min(...ys);
 					const bbox = {
@@ -41,11 +43,10 @@ const DrawingLayer = ({ tool, color = "#1f2937", strokeWidth = 2, onDrawEnd }) =
 						width: Math.max(1, Math.max(...xs) - minX),
 						height: Math.max(1, Math.max(...ys) - minY),
 					};
-					// SVG path relative to the bbox origin
-					const pathData = xs
-						.map((x, i) => `${i === 0 ? "M" : "L"} ${x - minX} ${ys[i] - minY}`)
-						.join(" ");
-					onDrawEnd(pathData, bbox);
+					// build filled outline relative to bbox origin
+					const relative = current.map((p) => [p[0] - minX, p[1] - minY]);
+					const pathData = getSvgPathFromStroke(getStroke(relative, STROKE_OPTIONS));
+					if (pathData) onDrawEnd(pathData, bbox);
 				}
 				return [];
 			});
@@ -59,19 +60,10 @@ const DrawingLayer = ({ tool, color = "#1f2937", strokeWidth = 2, onDrawEnd }) =
 		};
 	}, [tool, onDrawEnd]);
 
-	return (
-		<Layer ref={layerRef}>
-			{points.length >= 4 && (
-				<Line
-					points={points}
-					stroke={color}
-					strokeWidth={strokeWidth}
-					lineCap="round"
-					lineJoin="round"
-				/>
-			)}
-		</Layer>
-	);
+	const livePath =
+		points.length >= 2 ? getSvgPathFromStroke(getStroke(points, STROKE_OPTIONS)) : "";
+
+	return <Layer ref={layerRef}>{livePath && <Path data={livePath} fill={color} />}</Layer>;
 };
 
 export { DrawingLayer };

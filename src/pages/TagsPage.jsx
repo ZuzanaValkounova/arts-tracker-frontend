@@ -46,7 +46,7 @@ const TagsPage = () => {
 	const mutationError = createMutation.error?.message ?? updateMutation.error?.message ?? null;
 
 	return (
-		<div className="flex max-w-xl flex-col gap-4">
+		<div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
 			<h1 className="text-xl font-bold">Tags</h1>
 			<TagManager
 				tags={tagsQuery.data ?? []}

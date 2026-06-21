@@ -43,7 +43,7 @@ const MoodboardToolbar = ({
 				onValueChange={(next) => next && onToolChange(next)}>
 				{TOOLS.map((tool) => (
 					<ToggleGroupItem key={tool.id} value={tool.id} aria-label={tool.label} title={tool.label}>
-						<tool.icon />
+						<tool.icon className="size-5" />
 					</ToggleGroupItem>
 				))}
 			</ToggleGroup>

@@ -7,6 +7,7 @@ import { ColorElement } from "./ColorElement";
 import { DrawingElement } from "./DrawingElement";
 import { ElementTransformer } from "./ElementTransformer";
 import { DrawingLayer } from "./DrawingLayer";
+import { useElementSize } from "../../hooks/useElementSize";
 
 const ELEMENT_COMPONENTS = {
 	image: ImageElement,
@@ -14,9 +15,6 @@ const ELEMENT_COMPONENTS = {
 	color: ColorElement,
 	drawing: DrawingElement,
 };
-
-const STAGE_WIDTH = 1000;
-const STAGE_HEIGHT = 600;
 
 const nextZ = (elements) => Math.max(0, ...elements.map((el) => el.z ?? 0)) + 1;
 
@@ -28,8 +26,12 @@ const MoodboardCanvas = ({
 	onElementChange,
 	onElementDelete,
 }) => {
+	const [containerRef, { width, height }] = useElementSize();
 	const [selected, setSelected] = useState(null); // { id, node }
-	const [editing, setEditing] = useState(null); // { id, content, x, y, width, fontSize, fontFamily, color }
+	const [editing, setEditing] = useState(null);
+	const [colorEditing, setColorEditing] = useState(null); // { id, hex, x, y } recolor overlay
+
+	const ready = width > 0 && height > 0;
 
 	const handleStageClick = (e) => {
 		const clickedOnEmpty = e.target === e.target.getStage();
@@ -63,12 +65,19 @@ const MoodboardCanvas = ({
 
 	const handleDrawEnd = useCallback(
 		(pathData, bbox) => {
-			onElementAdd({ type: "drawing", ...bbox, z: nextZ(elements), rotation: 0, pathData });
+			onElementAdd({
+				type: "drawing",
+				...bbox,
+				z: nextZ(elements),
+				rotation: 0,
+				pathData,
+				color: activeColor,
+			});
 		},
-		[onElementAdd, elements],
+		[onElementAdd, elements, activeColor],
 	);
 
-	const handleStartEdit = (element) => {
+	const handleStartTextEdit = (element) => {
 		setSelected(null);
 		setEditing({
 			id: element._id,
@@ -80,6 +89,11 @@ const MoodboardCanvas = ({
 			fontFamily: element.fontFamily,
 			color: element.color,
 		});
+	};
+
+	const handleStartColorEdit = (element) => {
+		setSelected(null);
+		setColorEditing({ id: element._id, hex: element.hex, x: element.x, y: element.y });
 	};
 
 	const commitEdit = () => {
@@ -109,44 +123,43 @@ const MoodboardCanvas = ({
 	const sortedElements = [...elements].sort((a, b) => (a.z ?? 0) - (b.z ?? 0));
 
 	return (
-		<div className="relative overflow-auto rounded-lg border bg-card">
-			<Stage
-				width={STAGE_WIDTH}
-				height={STAGE_HEIGHT}
-				onClick={handleStageClick}
-				onTap={handleStageClick}>
-				<Layer>
-					{sortedElements.map((element) => {
-						const ElementComponent = ELEMENT_COMPONENTS[element.type];
-						if (!ElementComponent) return null;
-						return (
-							<ElementComponent
-								key={element._id}
-								element={element}
-								isSelected={activeSelection?.id === element._id}
-								isEditing={editing?.id === element._id}
-								onSelect={(e) =>
-									activeTool === "select" && setSelected({ id: element._id, node: e.target })
-								}
-								onChange={(patch) => onElementChange(element._id, patch)}
-								onStartEdit={() => handleStartEdit(element)}
+		<div
+			ref={containerRef}
+			className="relative h-full w-full overflow-hidden rounded-lg border bg-card">
+			{ready && (
+				<Stage width={width} height={height} onClick={handleStageClick} onTap={handleStageClick}>
+					<Layer>
+						{sortedElements.map((element) => {
+							const ElementComponent = ELEMENT_COMPONENTS[element.type];
+							if (!ElementComponent) return null;
+							return (
+								<ElementComponent
+									key={element._id}
+									element={element}
+									isSelected={activeSelection?.id === element._id}
+									isEditing={editing?.id === element._id}
+									onSelect={(e) =>
+										activeTool === "select" && setSelected({ id: element._id, node: e.target })
+									}
+									onChange={(patch) => onElementChange(element._id, patch)}
+									onStartEdit={() =>
+										element.type === "color"
+											? handleStartColorEdit(element)
+											: handleStartTextEdit(element)
+									}
+								/>
+							);
+						})}
+						{activeSelection && activeTool === "select" && (
+							<ElementTransformer
+								node={activeSelection.node}
+								onTransform={(patch) => onElementChange(activeSelection.id, patch)}
 							/>
-						);
-					})}
-					{activeSelection && activeTool === "select" && (
-						<ElementTransformer
-							node={activeSelection.node}
-							onTransform={(patch) => onElementChange(activeSelection.id, patch)}
-						/>
-					)}
-				</Layer>
-				<DrawingLayer
-					tool={activeTool}
-					color={activeColor}
-					strokeWidth={2}
-					onDrawEnd={handleDrawEnd}
-				/>
-			</Stage>
+						)}
+					</Layer>
+					<DrawingLayer tool={activeTool} color={activeColor} onDrawEnd={handleDrawEnd} />
+				</Stage>
+			)}
 
 			{editing && (
 				<textarea
@@ -178,6 +191,29 @@ const MoodboardCanvas = ({
 						background: "white",
 						resize: "none",
 						overflow: "hidden",
+					}}
+				/>
+			)}
+
+			{colorEditing && (
+				<input
+					type="color"
+					autoFocus
+					value={colorEditing.hex}
+					onChange={(e) => {
+						onElementChange(colorEditing.id, { hex: e.target.value });
+						setColorEditing(null);
+					}}
+					onBlur={() => setColorEditing(null)}
+					style={{
+						position: "absolute",
+						left: colorEditing.x,
+						top: colorEditing.y,
+						width: 48,
+						height: 32,
+						padding: 0,
+						border: "1px solid #3b82f6",
+						cursor: "pointer",
 					}}
 				/>
 			)}

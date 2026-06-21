@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { DragDropContext } from "@hello-pangea/dnd";
 
 import { KanbanColumn } from "./KanbanColumn";
@@ -14,32 +13,22 @@ const buildColumns = (tasks) => {
 };
 
 // kanban over top-level tasks
-// onMove(taskId, { status?, order? }) commits a drop
+// onMove(taskId, { status?, order? }) commits a drop optimistically in TasksTab
 // onRenumber() when the sibling order gap is exhausted
 const TaskKanbanBoard = ({ tasks, onMove, onRenumber, onOpen }) => {
-	const [override, setOverride] = useState(null); // { tasksRef, columns }
-	const columns = override?.tasksRef === tasks ? override.columns : buildColumns(tasks);
+	const columns = buildColumns(tasks);
 
 	const handleDragEnd = ({ source, destination, draggableId }) => {
 		if (!destination) return; // dropped outside any column
 		if (source.droppableId === destination.droppableId && source.index === destination.index)
 			return;
 
-		const original = tasks.find((t) => t._id === draggableId);
-		if (!original) return;
-
-		// optimistically reorder a local copy
-		const next = Object.fromEntries(TASK_STATUSES.map((s) => [s, [...columns[s]]]));
-		const [moved] = next[source.droppableId].splice(source.index, 1);
+		const working = Object.fromEntries(TASK_STATUSES.map((s) => [s, [...columns[s]]]));
+		const [moved] = working[source.droppableId].splice(source.index, 1);
 		if (!moved) return;
-		next[destination.droppableId].splice(destination.index, 0, {
-			...moved,
-			status: destination.droppableId,
-		});
-		setOverride({ tasksRef: tasks, columns: next });
+		working[destination.droppableId].splice(destination.index, 0, moved);
 
-		// new order = midpoint between the dropped card's new neighbours
-		const list = next[destination.droppableId];
+		const list = working[destination.droppableId];
 		const order = midpointOrder(
 			list[destination.index - 1]?.order ?? null,
 			list[destination.index + 1]?.order ?? null,
@@ -57,7 +46,7 @@ const TaskKanbanBoard = ({ tasks, onMove, onRenumber, onOpen }) => {
 
 	return (
 		<DragDropContext onDragEnd={handleDragEnd}>
-			<div className="flex gap-3 overflow-x-auto pb-2">
+			<div className="flex justify-center gap-3 overflow-x-auto pb-2">
 				{TASK_STATUSES.map((status) => (
 					<KanbanColumn key={status} status={status} tasks={columns[status]} onOpen={onOpen} />
 				))}

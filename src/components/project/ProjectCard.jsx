@@ -3,38 +3,73 @@ import { Pencil, Trash2 } from "lucide-react";
 import { StatusBadge } from "../ui/shared/StatusBadge";
 import { DifficultyRating } from "../ui/shared/DifficultyRating";
 import { ProgressBar } from "../ui/shared/ProgressBar";
-import { TagChip } from "../ui/shared/TagChip";
 import { Button } from "@/components/ui/button";
 
 const ProjectCard = ({ project, progress, onOpen, onEdit, onDelete }) => {
+	const accent = project.color ?? null;
+	const stop = (fn) => (e) => {
+		e.stopPropagation();
+		fn();
+	};
+
 	return (
 		<div
 			onClick={onOpen}
-			className="cursor-pointer overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm transition hover:shadow-md"
-			style={project.color ? { borderTopColor: project.color, borderTopWidth: 3 } : undefined}>
-			{project.image?.url && (
-				<img src={project.image.url} alt={project.name} className="h-32 w-full object-cover" />
-			)}
-			<div className="flex flex-col gap-2 p-4">
-				<div className="flex items-start justify-between gap-2">
-					<h2 className="text-base font-semibold">{project.name}</h2>
+			className="group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition hover:shadow-md">
+			{accent && <div className="h-2 w-full shrink-0" style={{ backgroundColor: accent }} />}
+
+			{/* image hero (the focus); colored placeholder block when there's no image */}
+			<div className="relative aspect-video w-full overflow-hidden bg-muted">
+				{project.image?.url ? (
+					<img
+						src={project.image.url}
+						alt={project.name}
+						className="size-full object-cover transition-transform duration-200 group-hover:scale-105"
+					/>
+				) : (
+					<div
+						className="flex size-full items-center justify-center"
+						style={{ backgroundColor: accent ?? "var(--muted)" }}>
+						<span className="text-4xl font-bold text-white/90 drop-shadow-sm">
+							{project.name?.[0]?.toUpperCase() ?? "?"}
+						</span>
+					</div>
+				)}
+
+				<div className="absolute top-2 right-2">
 					<StatusBadge status={project.status} size="sm" />
 				</div>
-				{project.category && (
-					<div className="text-xs text-muted-foreground">
-						{project.category.icon} {project.category.name}
+
+				{(onEdit || onDelete) && (
+					<div className="absolute right-2 bottom-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+						{onEdit && (
+							<Button
+								type="button"
+								variant="secondary"
+								size="icon-sm"
+								aria-label="Edit project"
+								onClick={stop(onEdit)}>
+								<Pencil />
+							</Button>
+						)}
+						{onDelete && (
+							<Button
+								type="button"
+								variant="secondary"
+								size="icon-sm"
+								aria-label="Delete project"
+								onClick={stop(onDelete)}>
+								<Trash2 />
+							</Button>
+						)}
 					</div>
 				)}
-				{project.tags?.length > 0 && (
-					<div className="flex flex-wrap gap-1">
-						{project.tags.map((tag) => (
-							<TagChip key={tag._id} tag={tag} />
-						))}
-					</div>
-				)}
-				<div className="flex items-center justify-between text-xs text-muted-foreground">
-					{project.difficulty ? <DifficultyRating value={project.difficulty} readOnly /> : <span />}
-					{project.deadline && <span>Due {new Date(project.deadline).toLocaleDateString()}</span>}
+			</div>
+
+			<div className="flex flex-col gap-2 p-3">
+				<div className="flex items-center justify-between gap-2">
+					<h2 className="truncate font-semibold">{project.name}</h2>
+					{project.difficulty ? <DifficultyRating value={project.difficulty} readOnly /> : null}
 				</div>
 				{progress != null ? (
 					<ProgressBar value={progress} showLabel />
@@ -45,36 +80,6 @@ const ProjectCard = ({ project, progress, onOpen, onEdit, onDelete }) => {
 						showLabel
 					/>
 				) : null}
-				{(onEdit || onDelete) && (
-					<div className="flex justify-end gap-1 pt-1">
-						{onEdit && (
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon-sm"
-								aria-label="Edit project"
-								onClick={(e) => {
-									e.stopPropagation();
-									onEdit();
-								}}>
-								<Pencil />
-							</Button>
-						)}
-						{onDelete && (
-							<Button
-								type="button"
-								variant="ghost"
-								size="icon-sm"
-								aria-label="Delete project"
-								onClick={(e) => {
-									e.stopPropagation();
-									onDelete();
-								}}>
-								<Trash2 />
-							</Button>
-						)}
-					</div>
-				)}
 			</div>
 		</div>
 	);

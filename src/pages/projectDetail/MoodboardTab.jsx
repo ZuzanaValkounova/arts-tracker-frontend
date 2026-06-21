@@ -90,7 +90,7 @@ const MoodboardTab = ({ project }) => {
 		return <ErrorState message={moodboardQuery.error.message} onRetry={moodboardQuery.refetch} />;
 
 	return (
-		<div className="flex flex-col gap-3">
+		<div className="flex h-[70vh] min-h-[480px] flex-col gap-3">
 			<MoodboardToolbar
 				activeTool={activeTool}
 				onToolChange={setActiveTool}
@@ -99,14 +99,16 @@ const MoodboardTab = ({ project }) => {
 				activeColor={activeColor}
 				onActiveColorChange={setActiveColor}
 			/>
-			<MoodboardCanvas
-				elements={elements}
-				activeTool={activeTool}
-				activeColor={activeColor}
-				onElementAdd={handleElementAdd}
-				onElementChange={(elementId, patch) => updateElementMutation.mutate({ elementId, patch })}
-				onElementDelete={(elementId) => deleteElementMutation.mutate(elementId)}
-			/>
+			<div className="min-h-0 flex-1">
+				<MoodboardCanvas
+					elements={elements}
+					activeTool={activeTool}
+					activeColor={activeColor}
+					onElementAdd={handleElementAdd}
+					onElementChange={(elementId, patch) => updateElementMutation.mutate({ elementId, patch })}
+					onElementDelete={(elementId) => deleteElementMutation.mutate(elementId)}
+				/>
+			</div>
 
 			<FormDialog
 				open={Boolean(pendingImage)}

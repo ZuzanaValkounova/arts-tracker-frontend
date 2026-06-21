@@ -16,6 +16,7 @@ import { StatisticsPage } from "./pages/StatisticsPage";
 import { TagsPage } from "./pages/TagsPage";
 // import { RegisterPage } from "./pages/RegisterPage";
 import { LoginPage } from "./pages/LoginPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -44,7 +45,7 @@ const router = createBrowserRouter([
 			{ path: "/resources", element: <ResourcesPage /> },
 			{ path: "/statistics", element: <StatisticsPage /> },
 			{ path: "/tags", element: <TagsPage /> },
-			// { path: "/*", element: <NotFoundPage /> }, TODO
+			{ path: "*", element: <NotFoundPage /> },
 		],
 	},
 ]);
