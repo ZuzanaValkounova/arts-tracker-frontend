@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { InventoryList } from "../components/inventory/InventoryList";
@@ -39,6 +39,7 @@ const InventoryPage = () => {
 	const itemsQuery = useQuery({
 		queryKey: ["inventory", filters],
 		queryFn: () => getInventoryItems(token, filters),
+		placeholderData: keepPreviousData,
 	});
 	const categoriesQuery = useQuery({
 		queryKey: ["categories"],

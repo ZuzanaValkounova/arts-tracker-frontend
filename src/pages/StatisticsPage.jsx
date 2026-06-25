@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 import { StatsFilters } from "../components/statistics/StatsFilters";
 import { StatisticsDashboard } from "../components/statistics/StatisticsDashboard";
@@ -31,6 +31,7 @@ const StatisticsPage = () => {
 		queryKey: ["statistics", "projects", filters],
 		queryFn: () =>
 			getProjectStatistics(token, { ...common, categoryId: filters.categoryId ?? undefined }),
+		placeholderData: keepPreviousData,
 	});
 	const taskStatsQuery = useQuery({
 		queryKey: ["statistics", "tasks", filters],
@@ -40,6 +41,7 @@ const StatisticsPage = () => {
 				projectId: filters.projectId ?? undefined,
 				taskType: filters.taskType ?? undefined,
 			}),
+		placeholderData: keepPreviousData,
 	});
 	const timelineQuery = useQuery({
 		queryKey: ["statistics", "timeline", filters],
@@ -51,6 +53,7 @@ const StatisticsPage = () => {
 				projectId: filters.projectId ?? undefined,
 				taskType: filters.taskType ?? undefined,
 			}),
+		placeholderData: keepPreviousData,
 	});
 	const categoriesQuery = useQuery({
 		queryKey: ["categories"],

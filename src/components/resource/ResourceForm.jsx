@@ -50,7 +50,9 @@ const ResourceForm = ({ initialValues, projectId, onSubmit, onCancel, loading })
 
 			{type === "link" ? (
 				<div className="flex flex-col gap-1.5">
-					<Label>URL *</Label>
+					<Label>
+						URL <span className="text-destructive">*</span>
+					</Label>
 					<Input
 						type="url"
 						value={url}

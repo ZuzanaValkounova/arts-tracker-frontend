@@ -12,7 +12,7 @@ const FormDialog = ({ open, onClose, title, description, children, className }) 
 		<Dialog open={open} onOpenChange={(next) => !next && onClose?.()}>
 			<DialogContent className={cn("max-h-[90dvh] overflow-y-auto sm:max-w-lg", className)}>
 				{title ? (
-					<DialogHeader>
+					<DialogHeader className="text-center">
 						<DialogTitle>{title}</DialogTitle>
 						{description ? <DialogDescription>{description}</DialogDescription> : null}
 					</DialogHeader>

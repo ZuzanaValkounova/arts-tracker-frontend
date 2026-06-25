@@ -4,13 +4,12 @@ import { getStroke } from "perfect-freehand";
 
 import { DRAWING_INK, STROKE_OPTIONS, getSvgPathFromStroke } from "../../utils/moodboard";
 
-// freehand drawing via perfect-freehand: listens on the stage while tool === "draw",
-// renders the live filled stroke and emits onDrawEnd(pathData, bbox) where pathData is
-// a closed outline relative to bbox
+// drawing via perfect-freehand
 const DrawingLayer = ({ tool, color = DRAWING_INK, onDrawEnd }) => {
 	const layerRef = useRef(null);
 	const drawingRef = useRef(false);
-	const [points, setPoints] = useState([]); // array of [x, y]
+	const pointsRef = useRef([]); // [[x, y]]
+	const [points, setPoints] = useState([]); // mirror to re-render the live preview
 
 	useEffect(() => {
 		const stage = layerRef.current?.getStage();
@@ -19,37 +18,41 @@ const DrawingLayer = ({ tool, color = DRAWING_INK, onDrawEnd }) => {
 		const getPos = () => stage.getPointerPosition();
 
 		const handleDown = () => {
-			drawingRef.current = true;
 			const pos = getPos();
-			setPoints([pos.x, pos.y]);
+			if (!pos) return;
+			drawingRef.current = true;
+			pointsRef.current = [[pos.x, pos.y]];
+			setPoints(pointsRef.current);
 		};
 		const handleMove = () => {
 			if (!drawingRef.current) return;
 			const pos = getPos();
-			setPoints((prev) => [...prev, pos.x, pos.y]);
+			if (!pos) return;
+			pointsRef.current = [...pointsRef.current, [pos.x, pos.y]];
+			setPoints(pointsRef.current);
 		};
 		const handleUp = () => {
 			if (!drawingRef.current) return;
 			drawingRef.current = false;
-			setPoints((current) => {
-				if (current.length >= 2) {
-					const xs = current.map((pos) => pos[0]);
-					const ys = current.map((pos) => pos[1]);
-					const minX = Math.min(...xs);
-					const minY = Math.min(...ys);
-					const bbox = {
-						x: minX,
-						y: minY,
-						width: Math.max(1, Math.max(...xs) - minX),
-						height: Math.max(1, Math.max(...ys) - minY),
-					};
-					// build filled outline relative to bbox origin
-					const relative = current.map((p) => [p[0] - minX, p[1] - minY]);
-					const pathData = getSvgPathFromStroke(getStroke(relative, STROKE_OPTIONS));
-					if (pathData) onDrawEnd(pathData, bbox);
-				}
-				return [];
-			});
+			const current = pointsRef.current;
+			pointsRef.current = [];
+			setPoints([]);
+			if (current.length < 2) return;
+
+			const outline = getStroke(current, STROKE_OPTIONS);
+			if (!outline.length) return;
+			const xs = outline.map((p) => p[0]);
+			const ys = outline.map((p) => p[1]);
+			const minX = Math.floor(Math.min(...xs));
+			const minY = Math.floor(Math.min(...ys));
+			const bbox = {
+				x: minX,
+				y: minY,
+				width: Math.max(1, Math.ceil(Math.max(...xs)) - minX),
+				height: Math.max(1, Math.ceil(Math.max(...ys)) - minY),
+			};
+			const pathData = getSvgPathFromStroke(outline.map((p) => [p[0] - minX, p[1] - minY]));
+			if (pathData) onDrawEnd(pathData, bbox);
 		};
 
 		stage.on("mousedown.draw touchstart.draw", handleDown);

@@ -1,8 +1,7 @@
 import { Rect } from "react-konva";
 
 // element: { _id, type: "color", x, y, z, width, height, rotation, hex }
-// single-click selects/moves; double-click opens the recolor picker
-const ColorElement = ({ element, isSelected, onSelect, onChange, onStartEdit }) => {
+const ColorElement = ({ element, isSelected, draggable = true, onSelect, onChange }) => {
 	return (
 		<Rect
 			x={element.x}
@@ -12,11 +11,9 @@ const ColorElement = ({ element, isSelected, onSelect, onChange, onStartEdit }) 
 			rotation={element.rotation}
 			fill={element.hex}
 			cornerRadius={4}
-			draggable
+			draggable={draggable}
 			onClick={onSelect}
 			onTap={onSelect}
-			onDblClick={onStartEdit}
-			onDblTap={onStartEdit}
 			onDragEnd={(e) => onChange({ x: e.target.x(), y: e.target.y() })}
 			stroke={isSelected ? "#3b82f6" : undefined}
 			strokeWidth={isSelected ? 1 : 0}

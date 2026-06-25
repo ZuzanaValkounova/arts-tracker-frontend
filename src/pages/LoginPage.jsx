@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 
 import { login } from "../api/users";
@@ -31,7 +31,7 @@ const LoginPage = () => {
 	return (
 		<div className="flex min-h-svh items-center justify-center bg-muted/30 p-4">
 			<Card className="w-full max-w-sm">
-				<CardHeader>
+				<CardHeader className="text-center">
 					<CardTitle className="text-lg">Welcome back</CardTitle>
 					<CardDescription>Log in to your account.</CardDescription>
 				</CardHeader>
@@ -62,11 +62,6 @@ const LoginPage = () => {
 						<Button type="submit" disabled={!username || !password || loginMutation.isPending}>
 							{loginMutation.isPending ? "Logging in…" : "Log in"}
 						</Button>
-						<Link
-							to="/"
-							className="text-center text-xs text-muted-foreground hover:text-foreground">
-							Back to main page
-						</Link>
 					</form>
 				</CardContent>
 			</Card>

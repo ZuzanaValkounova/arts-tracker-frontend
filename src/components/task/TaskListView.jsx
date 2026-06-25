@@ -37,13 +37,15 @@ const TaskListView = ({ tasks, onToggleComplete, onEdit, onDelete, onAddSubtask 
 				id: "complete",
 				header: "",
 				cell: ({ row }) => (
-					<input
-						type="checkbox"
-						checked={row.original.status === "completed"}
-						onChange={() => onToggleComplete(row.original._id)}
-						className="size-4 cursor-pointer accent-primary"
-						aria-label="Toggle complete"
-					/>
+					<div style={{ paddingLeft: `${row.depth * 20}px` }}>
+						<input
+							type="checkbox"
+							checked={row.original.status === "completed"}
+							onChange={() => onToggleComplete(row.original._id)}
+							className="size-4 cursor-pointer accent-primary"
+							aria-label="Toggle complete"
+						/>
+					</div>
 				),
 			}),
 			columnHelper.accessor("name", {
@@ -143,6 +145,7 @@ const TaskListView = ({ tasks, onToggleComplete, onEdit, onDelete, onAddSubtask 
 							variant="ghost"
 							size="icon-sm"
 							aria-label="Delete task"
+							className="text-destructive hover:text-destructive"
 							onClick={() => onDelete(row.original)}>
 							<Trash2 />
 						</Button>

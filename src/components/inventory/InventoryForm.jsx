@@ -15,6 +15,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { CategoryIcon } from "../ui/shared/CategoryIcon";
 
 const inventoryItemSchema = z.object({
 	name: z.string().min(1, "Name is required").max(200),
@@ -79,7 +80,9 @@ const InventoryForm = ({ initialValues, categories = [], onSubmit, onCancel, loa
 	return (
 		<form onSubmit={handleSubmit} className="flex flex-col gap-4">
 			<div className="flex flex-col gap-1.5">
-				<Label>Name *</Label>
+				<Label>
+					Name <span className="text-destructive">*</span>
+				</Label>
 				<Input value={values.name} onChange={(e) => set({ name: e.target.value })} />
 				{errors.name && <span className="text-xs text-destructive">{errors.name}</span>}
 			</div>
@@ -171,12 +174,13 @@ const InventoryForm = ({ initialValues, categories = [], onSubmit, onCancel, loa
 							type="button"
 							onClick={() => toggleCategory(category._id)}
 							className={cn(
-								"rounded-full border px-2.5 py-0.5 text-xs transition-colors",
+								"inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs transition-colors",
 								values.categoryIds.includes(category._id)
 									? "border-primary bg-primary/10 text-foreground"
 									: "border-border text-muted-foreground hover:border-ring",
 							)}>
-							{category.icon} {category.name}
+							<CategoryIcon name={category.icon} className="size-3.5" />
+							{category.name}
 						</button>
 					))}
 				</div>

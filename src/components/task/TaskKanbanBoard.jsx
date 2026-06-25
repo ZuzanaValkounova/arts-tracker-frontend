@@ -46,7 +46,7 @@ const TaskKanbanBoard = ({ tasks, onMove, onRenumber, onOpen }) => {
 
 	return (
 		<DragDropContext onDragEnd={handleDragEnd}>
-			<div className="flex justify-center gap-3 overflow-x-auto pb-2">
+			<div className="flex gap-3 overflow-x-auto pb-2">
 				{TASK_STATUSES.map((status) => (
 					<KanbanColumn key={status} status={status} tasks={columns[status]} onOpen={onOpen} />
 				))}

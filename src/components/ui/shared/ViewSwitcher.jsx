@@ -1,6 +1,7 @@
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const VIEW_LABELS = {
+	grid: "Grid",
 	list: "List",
 	kanban: "Kanban",
 	calendar: "Calendar",

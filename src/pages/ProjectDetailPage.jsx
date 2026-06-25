@@ -2,14 +2,17 @@ import { useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Pencil, Trash2 } from "lucide-react";
 
 import { ProjectDetailHeader } from "../components/project/ProjectDetailHeader";
 import { ProjectTabs } from "../components/project/ProjectTabs";
 import { ProjectForm } from "../components/project/ProjectForm";
 import { ReflectionDialog } from "../components/project/ReflectionDialog";
 import { ReflectionCard } from "../components/project/ReflectionCard";
+import { ProjectStatusControl } from "../components/project/ProjectStatusControl";
 import { FormDialog } from "../components/ui/shared/FormDialog";
 import { ConfirmDialog } from "../components/ui/shared/ConfirmDialog";
+import { Button } from "@/components/ui/button";
 import { LoadingState } from "../components/ui/shared/LoadingState";
 import { ErrorState } from "../components/ui/shared/ErrorState";
 
@@ -123,19 +126,43 @@ const ProjectDetailPage = () => {
 
 	return (
 		<div className="flex flex-col gap-4">
-			<ProjectDetailHeader
-				project={enrichedProject}
-				progress={progress.percent}
-				onEdit={() => setEditOpen(true)}
-				onDelete={() => setDeleteOpen(true)}
-				onStatusChange={(status) => updateMutation.mutate({ status })}
-			/>
-
-			{project.reflection && (
-				<ReflectionCard reflection={project.reflection} onEdit={() => setReflectionOpen(true)} />
-			)}
+			{/* bar: name + status + edit + delete */}
+			<div className="flex flex-wrap items-center justify-between gap-3">
+				<h1
+					className="text-xl font-bold"
+					style={project.color ? { color: project.color } : undefined}>
+					{project.name}
+				</h1>
+				<div className="flex items-center gap-2">
+					<ProjectStatusControl
+						value={project.status}
+						onChange={(status) => updateMutation.mutate({ status })}
+					/>
+					<Button type="button" variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+						<Pencil />
+						Edit
+					</Button>
+					<Button type="button" variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
+						<Trash2 />
+						Delete
+					</Button>
+				</div>
+			</div>
 
 			<ProjectTabs value={tab} onChange={setTab} />
+
+			{tab !== "moodboard" && (
+				<>
+					<ProjectDetailHeader project={enrichedProject} progress={progress.percent} />
+
+					{project.reflection && (
+						<ReflectionCard
+							reflection={project.reflection}
+							onEdit={() => setReflectionOpen(true)}
+						/>
+					)}
+				</>
+			)}
 
 			{tab === "tasks" && <TasksTab project={project} onCascade={handleCascade} />}
 			{tab === "moodboard" && <MoodboardTab project={project} />}

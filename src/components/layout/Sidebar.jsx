@@ -17,8 +17,8 @@ const DEFAULT_ITEMS = [
 	{ to: "/", label: "Projects", icon: LayoutDashboard, end: true },
 	{ to: "/inventory", label: "Inventory", icon: Package },
 	{ to: "/resources", label: "Resources", icon: ImageIcon },
-	{ to: "/statistics", label: "Statistics", icon: BarChart3 },
 	{ to: "/tags", label: "Tags", icon: Tags },
+	{ to: "/statistics", label: "Statistics", icon: BarChart3 },
 ];
 
 const Sidebar = ({ items = DEFAULT_ITEMS, footer }) => {

@@ -1,15 +1,7 @@
-import { useState } from "react";
-import {
-	MousePointer2,
-	Image as ImageIcon,
-	Type,
-	Palette,
-	Paintbrush,
-	Plus,
-	Trash2,
-} from "lucide-react";
+import { MousePointer2, Image as ImageIcon, Type, Palette, Paintbrush, Trash2 } from "lucide-react";
 
 import { ColorSwatch } from "../ui/shared/ColorSwatch";
+import { ColorPicker } from "../ui/shared/ColorPicker";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -22,7 +14,6 @@ const TOOLS = [
 	{ id: "draw", label: "Draw", icon: Paintbrush },
 ];
 
-// draw, text and color tools all need a current color to work with.
 const MoodboardToolbar = ({
 	activeTool,
 	onToolChange,
@@ -32,8 +23,6 @@ const MoodboardToolbar = ({
 	onActiveColorChange,
 	onDeleteSelected,
 }) => {
-	const [newColor, setNewColor] = useState("#3b82f6");
-
 	return (
 		<div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-2">
 			<ToggleGroup
@@ -58,16 +47,14 @@ const MoodboardToolbar = ({
 						onClick={() => onActiveColorChange?.(hex)}
 					/>
 				))}
-				<input
-					type="color"
-					value={newColor}
-					onChange={(e) => setNewColor(e.target.value)}
-					className="size-5 cursor-pointer rounded"
+				<ColorPicker
+					value={activeColor}
+					onChange={(color) => {
+						if (!color) return;
+						onActiveColorChange?.(color);
+						onAddColor?.(color);
+					}}
 				/>
-				<Button type="button" variant="ghost" size="xs" onClick={() => onAddColor(newColor)}>
-					<Plus />
-					Add
-				</Button>
 			</div>
 			{onDeleteSelected && (
 				<Button

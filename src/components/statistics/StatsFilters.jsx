@@ -46,6 +46,11 @@ const StatsFilters = ({ filters, onChange, categories = [], projects = [] }) => 
 
 	const applyPreset = (id) => set({ ...presetRange(id, projects), granularity: "" });
 
+	const activePreset = PRESETS.find((preset) => {
+		const range = presetRange(preset.id, projects);
+		return range.from === filters.from && range.to === filters.to;
+	})?.id;
+
 	return (
 		<div className="flex flex-col gap-3 rounded-lg border bg-card p-3">
 			<div className="flex flex-wrap items-center gap-1.5">
@@ -54,7 +59,7 @@ const StatsFilters = ({ filters, onChange, categories = [], projects = [] }) => 
 					<Button
 						key={preset.id}
 						type="button"
-						variant="outline"
+						variant={activePreset === preset.id ? "default" : "outline"}
 						size="xs"
 						className="rounded-full"
 						onClick={() => applyPreset(preset.id)}>

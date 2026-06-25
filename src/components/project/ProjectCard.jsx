@@ -58,6 +58,7 @@ const ProjectCard = ({ project, progress, onOpen, onEdit, onDelete }) => {
 								variant="secondary"
 								size="icon-sm"
 								aria-label="Delete project"
+								className="text-destructive hover:text-destructive"
 								onClick={stop(onDelete)}>
 								<Trash2 />
 							</Button>

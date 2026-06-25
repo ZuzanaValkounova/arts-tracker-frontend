@@ -3,7 +3,7 @@ import { StatusPieChart } from "./StatusPieChart";
 import { SuccessRateChart } from "./SuccessRateChart";
 import { CategoryChart } from "./CategoryChart";
 import { DifficultyChart } from "./DifficultyChart";
-import { TagChart } from "./TagChart";
+import { DurationByCategoryChart } from "./DurationByCategoryChart";
 import { ActivityChart } from "./ActivityChart";
 import { mergeActivitySeries } from "../../utils/statistics";
 
@@ -31,7 +31,7 @@ const StatisticsDashboard = ({ data }) => {
 
 			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 				<DifficultyChart data={data.projects?.byDifficulty ?? []} />
-				<TagChart data={data.projects?.byTag ?? []} />
+				<DurationByCategoryChart data={data.projects?.durationByCategory ?? []} />
 			</div>
 
 			<h2 className="text-sm font-semibold text-foreground">Activity over time</h2>

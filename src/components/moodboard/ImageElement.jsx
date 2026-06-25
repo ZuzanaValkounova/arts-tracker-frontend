@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Image as KonvaImage } from "react-konva";
 
 // element: { _id, type: "image", x, y, z, width, height, rotation, url, publicId }
-const ImageElement = ({ element, isSelected, onSelect, onChange }) => {
+// draggable only in select mode
+const ImageElement = ({ element, draggable = true, onSelect, onChange }) => {
 	const [image, setImage] = useState(null);
 
 	useEffect(() => {
@@ -20,11 +21,10 @@ const ImageElement = ({ element, isSelected, onSelect, onChange }) => {
 			width={element.width}
 			height={element.height}
 			rotation={element.rotation}
-			draggable
+			draggable={draggable}
 			onClick={onSelect}
 			onTap={onSelect}
 			onDragEnd={(e) => onChange({ x: e.target.x(), y: e.target.y() })}
-			opacity={isSelected ? 0.9 : 1}
 		/>
 	);
 };

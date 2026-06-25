@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Stage, Layer } from "react-konva";
+import { BringToFront, SendToBack, Trash2 } from "lucide-react";
 
 import { ImageElement } from "./ImageElement";
 import { TextElement } from "./TextElement";
@@ -8,6 +9,16 @@ import { DrawingElement } from "./DrawingElement";
 import { ElementTransformer } from "./ElementTransformer";
 import { DrawingLayer } from "./DrawingLayer";
 import { useElementSize } from "../../hooks/useElementSize";
+import { ColorPicker } from "../ui/shared/ColorPicker";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 
 const ELEMENT_COMPONENTS = {
 	image: ImageElement,
@@ -16,7 +27,20 @@ const ELEMENT_COMPONENTS = {
 	drawing: DrawingElement,
 };
 
-const nextZ = (elements) => Math.max(0, ...elements.map((el) => el.z ?? 0)) + 1;
+const FONT_OPTIONS = [
+	{ value: "sans-serif", label: "Sans" },
+	{ value: "serif", label: "Serif" },
+	{ value: "monospace", label: "Mono" },
+	{ value: "cursive", label: "Handwriting" },
+	{ value: "Georgia", label: "Georgia" },
+];
+
+const DOT_GRID = {
+	backgroundImage: "radial-gradient(circle, var(--border) 1.25px, transparent 1.25px)",
+	backgroundSize: "22px 22px",
+};
+
+const nextZ = (elements) => Math.max(0, ...elements.map((element) => element.z ?? 0)) + 1;
 
 const MoodboardCanvas = ({
 	elements,
@@ -28,8 +52,7 @@ const MoodboardCanvas = ({
 }) => {
 	const [containerRef, { width, height }] = useElementSize();
 	const [selected, setSelected] = useState(null); // { id, node }
-	const [editing, setEditing] = useState(null);
-	const [colorEditing, setColorEditing] = useState(null); // { id, hex, x, y } recolor overlay
+	const [editing, setEditing] = useState(null); // text-content editing overlay
 
 	const ready = width > 0 && height > 0;
 
@@ -53,7 +76,7 @@ const MoodboardCanvas = ({
 				height: 30,
 				content: "Double-click to edit",
 				fontSize: 20,
-				fontFamily: "Arial",
+				fontFamily: "sans-serif",
 				color: activeColor,
 			});
 		} else if (activeTool === "color") {
@@ -91,15 +114,10 @@ const MoodboardCanvas = ({
 		});
 	};
 
-	const handleStartColorEdit = (element) => {
-		setSelected(null);
-		setColorEditing({ id: element._id, hex: element.hex, x: element.x, y: element.y });
-	};
-
 	const commitEdit = () => {
 		if (!editing) return;
 		const content = editing.content.trim();
-		const original = elements.find((el) => el._id === editing.id)?.content;
+		const original = elements.find((element) => element._id === editing.id)?.content;
 		if (content && content !== original) {
 			onElementChange(editing.id, { content });
 		}
@@ -107,7 +125,19 @@ const MoodboardCanvas = ({
 	};
 
 	const activeSelection =
-		selected && elements.some((el) => el._id === selected.id) ? selected : null;
+		selected && elements.some((element) => element._id === selected.id) ? selected : null;
+	const selectedElement = activeSelection
+		? elements.find((element) => element._id === activeSelection.id)
+		: null;
+
+	const bringToFront = () => {
+		const maxZ = Math.max(0, ...elements.map((element) => element.z ?? 0));
+		onElementChange(selectedElement._id, { z: maxZ + 1 });
+	};
+	const sendToBack = () => {
+		const minZ = Math.min(0, ...elements.map((element) => element.z ?? 0));
+		onElementChange(selectedElement._id, { z: minZ - 1 });
+	};
 
 	useEffect(() => {
 		const handleKey = (e) => {
@@ -125,7 +155,85 @@ const MoodboardCanvas = ({
 	return (
 		<div
 			ref={containerRef}
-			className="relative h-full w-full overflow-hidden rounded-lg border bg-card">
+			className="relative h-full w-full overflow-hidden rounded-lg border bg-card"
+			style={DOT_GRID}>
+			{/* floating controls for selected element: style, color, z-order, delete */}
+			{selectedElement && (
+				<div className="absolute top-2 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1.5 rounded-lg border bg-popover p-1.5 shadow-md">
+					{selectedElement.type === "text" && (
+						<>
+							<Select
+								value={selectedElement.fontFamily}
+								onValueChange={(fontFamily) =>
+									onElementChange(selectedElement._id, { fontFamily })
+								}>
+								<SelectTrigger size="sm" className="w-28">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									{FONT_OPTIONS.map((font) => (
+										<SelectItem key={font.value} value={font.value}>
+											{font.label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							<Input
+								type="number"
+								min={8}
+								max={200}
+								value={selectedElement.fontSize}
+								onChange={(e) =>
+									onElementChange(selectedElement._id, { fontSize: Number(e.target.value) || 8 })
+								}
+								className="h-8 w-16"
+							/>
+						</>
+					)}
+					{selectedElement.type === "color" && (
+						<ColorPicker
+							value={selectedElement.hex}
+							onChange={(color) => color && onElementChange(selectedElement._id, { hex: color })}
+						/>
+					)}
+					{(selectedElement.type === "text" || selectedElement.type === "drawing") && (
+						<ColorPicker
+							value={selectedElement.color}
+							onChange={(color) => color && onElementChange(selectedElement._id, { color })}
+						/>
+					)}
+					{selectedElement.type !== "image" && <span className="mx-0.5 h-6 w-px bg-border" />}
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						title="Bring to front"
+						onClick={bringToFront}>
+						<BringToFront />
+					</Button>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						title="Send to back"
+						onClick={sendToBack}>
+						<SendToBack />
+					</Button>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+						title="Delete"
+						className="text-destructive hover:text-destructive"
+						onClick={() => {
+							onElementDelete(selectedElement._id);
+							setSelected(null);
+						}}>
+						<Trash2 />
+					</Button>
+				</div>
+			)}
+
 			{ready && (
 				<Stage width={width} height={height} onClick={handleStageClick} onTap={handleStageClick}>
 					<Layer>
@@ -138,21 +246,21 @@ const MoodboardCanvas = ({
 									element={element}
 									isSelected={activeSelection?.id === element._id}
 									isEditing={editing?.id === element._id}
+									draggable={activeTool === "select"}
 									onSelect={(e) =>
 										activeTool === "select" && setSelected({ id: element._id, node: e.target })
 									}
 									onChange={(patch) => onElementChange(element._id, patch)}
-									onStartEdit={() =>
-										element.type === "color"
-											? handleStartColorEdit(element)
-											: handleStartTextEdit(element)
-									}
+									onStartEdit={() => element.type === "text" && handleStartTextEdit(element)}
 								/>
 							);
 						})}
 						{activeSelection && activeTool === "select" && (
 							<ElementTransformer
 								node={activeSelection.node}
+								resizeEnabled={
+									selectedElement?.type !== "text" && selectedElement?.type !== "drawing"
+								}
 								onTransform={(patch) => onElementChange(activeSelection.id, patch)}
 							/>
 						)}
@@ -191,29 +299,6 @@ const MoodboardCanvas = ({
 						background: "white",
 						resize: "none",
 						overflow: "hidden",
-					}}
-				/>
-			)}
-
-			{colorEditing && (
-				<input
-					type="color"
-					autoFocus
-					value={colorEditing.hex}
-					onChange={(e) => {
-						onElementChange(colorEditing.id, { hex: e.target.value });
-						setColorEditing(null);
-					}}
-					onBlur={() => setColorEditing(null)}
-					style={{
-						position: "absolute",
-						left: colorEditing.x,
-						top: colorEditing.y,
-						width: 48,
-						height: 32,
-						padding: 0,
-						border: "1px solid #3b82f6",
-						cursor: "pointer",
 					}}
 				/>
 			)}

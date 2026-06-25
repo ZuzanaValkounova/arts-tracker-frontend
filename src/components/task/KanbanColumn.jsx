@@ -11,7 +11,7 @@ const KanbanColumn = ({ status, tasks, onOpen }) => {
 	return (
 		<div
 			className={cn(
-				"flex w-64 shrink-0 flex-col rounded-lg",
+				"flex min-w-60 flex-1 flex-col rounded-lg",
 				isDone ? "bg-green-50/70 ring-1 ring-green-200" : "bg-muted/50",
 			)}>
 			<div className="flex items-center justify-between px-3 py-2">

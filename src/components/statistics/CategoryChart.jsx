@@ -2,9 +2,9 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recha
 
 // data: byCategory [{ _id, count, name, icon }]
 const CategoryChart = ({ data }) => {
-	const chartData = data.map(({ _id, count, name, icon }) => ({
+	const chartData = data.map(({ _id, count, name }) => ({
 		id: _id ?? "none",
-		name: `${icon ?? ""} ${name ?? "No category"}`.trim(),
+		name: name ?? "No category",
 		count,
 	}));
 

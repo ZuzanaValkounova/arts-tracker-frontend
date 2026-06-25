@@ -85,7 +85,9 @@ const ProjectForm = ({
 	return (
 		<form onSubmit={handleSubmit} className="flex flex-col gap-4">
 			<div className="flex flex-col gap-1.5">
-				<Label>Name *</Label>
+				<Label>
+					Name <span className="text-destructive">*</span>
+				</Label>
 				<Input value={values.name} onChange={(e) => set({ name: e.target.value })} />
 				{errors.name && <span className="text-xs text-destructive">{errors.name}</span>}
 			</div>

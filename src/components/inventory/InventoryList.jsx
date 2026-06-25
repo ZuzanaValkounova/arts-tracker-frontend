@@ -146,6 +146,7 @@ const InventoryList = ({ items, onEdit, onDelete }) => {
 							variant="ghost"
 							size="icon-sm"
 							aria-label="Delete item"
+							className="text-destructive hover:text-destructive"
 							onClick={() => onDelete(row.original)}>
 							<Trash2 />
 						</Button>

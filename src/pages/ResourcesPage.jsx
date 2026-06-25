@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
 
@@ -18,10 +18,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { getResources, createResource, deleteResource } from "../api/resources";
 import { useAuth } from "../contexts/AuthContext";
 import { useUrlFilters } from "../hooks/useUrlFilters";
+import { useDebouncedValue } from "../hooks/useDebouncedValue";
+
+const DEFAULT_SCOPE = "unassigned"; // shows projectless resources by default
 
 // global resources view — all of the user's images and links incl. ones not tied to a project
 const ResourcesPage = () => {
@@ -31,13 +35,22 @@ const ResourcesPage = () => {
 	const { get, set: updateParams } = useUrlFilters();
 	const type = get("type");
 	const search = get("search");
+	const scope = get("scope") || DEFAULT_SCOPE;
+
+	const [searchInput, setSearchInput] = useState(search);
+	const debouncedSearch = useDebouncedValue(searchInput, 300);
+	useEffect(() => {
+		if (debouncedSearch !== search) updateParams({ search: debouncedSearch });
+	}, [debouncedSearch]);
 
 	const [formOpen, setFormOpen] = useState(false);
 	const [resourceToDelete, setResourceToDelete] = useState(null);
 
 	const resourcesQuery = useQuery({
-		queryKey: ["resources", { type, search }],
-		queryFn: () => getResources(token, { type: type || undefined, search: search || undefined }),
+		queryKey: ["resources", { type, search, scope }],
+		queryFn: () =>
+			getResources(token, { type: type || undefined, search: search || undefined, scope }),
+		placeholderData: keepPreviousData,
 	});
 
 	const invalidate = () => queryClient.invalidateQueries({ queryKey: ["resources"] });
@@ -70,14 +83,14 @@ const ResourcesPage = () => {
 				<NewButton label="New resource" onClick={() => setFormOpen(true)} />
 			</div>
 
-			<div className="flex flex-wrap gap-3 rounded-lg border bg-card p-3">
+			<div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-3">
 				<div className="relative w-56">
 					<Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
 					<Input
 						type="search"
-						value={search}
-						onChange={(e) => updateParams({ search: e.target.value })}
-						placeholder="Search description…"
+						value={searchInput}
+						onChange={(e) => setSearchInput(e.target.value)}
+						placeholder="Search resources…"
 						className="pl-8"
 					/>
 				</div>
@@ -93,6 +106,22 @@ const ResourcesPage = () => {
 						<SelectItem value="link">Links</SelectItem>
 					</SelectContent>
 				</Select>
+				<ToggleGroup
+					type="single"
+					variant="outline"
+					size="sm"
+					value={scope}
+					onValueChange={(next) =>
+						next && updateParams({ scope: next === DEFAULT_SCOPE ? null : next })
+					}
+					className="ml-auto">
+					<ToggleGroupItem value="unassigned" className="px-3">
+						Global
+					</ToggleGroupItem>
+					<ToggleGroupItem value="all" className="px-3">
+						All
+					</ToggleGroupItem>
+				</ToggleGroup>
 			</div>
 
 			<ResourcesGrid resources={resourcesQuery.data ?? []} onDelete={setResourceToDelete} />

@@ -60,6 +60,7 @@ const MaterialsPanel = ({ materials, totals, onAdd, onEdit, onRemove }) => {
 											variant="ghost"
 											size="icon-sm"
 											aria-label="Remove material"
+											className="text-destructive hover:text-destructive"
 											onClick={() => onRemove(material)}>
 											<Trash2 />
 										</Button>

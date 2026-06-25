@@ -29,33 +29,73 @@ const MoodboardTab = ({ project }) => {
 	const [extraPalette, setExtraPalette] = useState([]);
 	const [pendingImage, setPendingImage] = useState(null);
 
+	const moodboardKey = ["moodboard", projectId];
 	const moodboardQuery = useQuery({
-		queryKey: ["moodboard", projectId],
+		queryKey: moodboardKey,
 		queryFn: () => getMoodboard(token, projectId),
 		retry: (failureCount, error) => error.status !== 404 && failureCount < 2,
 	});
 
-	const invalidate = () => queryClient.invalidateQueries({ queryKey: ["moodboard", projectId] });
+	const setBoard = (board) => queryClient.setQueryData(moodboardKey, board);
 
 	const createBoardMutation = useMutation({
 		mutationFn: () => createMoodboard(token, projectId),
-		onSuccess: () => {
+		onSuccess: (board) => {
 			toast.success("Moodboard created");
-			invalidate();
+			setBoard(board);
 		},
 	});
 	const addElementMutation = useMutation({
 		mutationFn: (element) => createMoodboardElement(token, projectId, element),
-		onSuccess: invalidate,
+		// optimistically show the new element immediately
+		onMutate: (element) => {
+			if (element.imageFile) return undefined;
+			queryClient.cancelQueries({ queryKey: moodboardKey });
+			const previous = queryClient.getQueryData(moodboardKey);
+			const optimisticElement = { ...element, _id: `temp-${Date.now()}` };
+			queryClient.setQueryData(moodboardKey, (board) =>
+				board ? { ...board, elements: [...board.elements, optimisticElement] } : board,
+			);
+			return { previous };
+		},
+		onError: (_error, _variables, context) => context?.previous && setBoard(context.previous),
+		onSuccess: setBoard,
 	});
 	const updateElementMutation = useMutation({
 		mutationFn: ({ elementId, patch }) =>
 			updateMoodboardElement(token, projectId, elementId, patch),
-		onSuccess: invalidate,
+		onMutate: async ({ elementId, patch }) => {
+			await queryClient.cancelQueries({ queryKey: moodboardKey });
+			const previous = queryClient.getQueryData(moodboardKey);
+			queryClient.setQueryData(moodboardKey, (board) =>
+				board
+					? {
+							...board,
+							elements: board.elements.map((element) =>
+								element._id === elementId ? { ...element, ...patch } : element,
+							),
+						}
+					: board,
+			);
+			return { previous };
+		},
+		onError: (_error, _variables, context) => context?.previous && setBoard(context.previous),
+		onSuccess: setBoard,
 	});
 	const deleteElementMutation = useMutation({
 		mutationFn: (elementId) => deleteMoodboardElement(token, projectId, elementId),
-		onSuccess: invalidate,
+		onMutate: async (elementId) => {
+			await queryClient.cancelQueries({ queryKey: moodboardKey });
+			const previous = queryClient.getQueryData(moodboardKey);
+			queryClient.setQueryData(moodboardKey, (board) =>
+				board
+					? { ...board, elements: board.elements.filter((element) => element._id !== elementId) }
+					: board,
+			);
+			return { previous };
+		},
+		onError: (_error, _variables, context) => context?.previous && setBoard(context.previous),
+		onSuccess: setBoard,
 	});
 
 	const elements = moodboardQuery.data?.elements ?? [];
@@ -90,7 +130,7 @@ const MoodboardTab = ({ project }) => {
 		return <ErrorState message={moodboardQuery.error.message} onRetry={moodboardQuery.refetch} />;
 
 	return (
-		<div className="flex h-[70vh] min-h-[480px] flex-col gap-3">
+		<div className="flex h-[calc(100vh-13rem)] min-h-130 flex-col gap-3">
 			<MoodboardToolbar
 				activeTool={activeTool}
 				onToolChange={setActiveTool}

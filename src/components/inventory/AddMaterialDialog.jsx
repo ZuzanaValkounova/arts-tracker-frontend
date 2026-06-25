@@ -40,7 +40,9 @@ const AddMaterialDialog = ({ open, inventory = [], initialValues, onSubmit, onCl
 			className="sm:max-w-md">
 			<form onSubmit={handleSubmit} className="flex flex-col gap-3">
 				<div className="flex flex-col gap-1.5">
-					<Label>Inventory item *</Label>
+					<Label>
+						Inventory item <span className="text-destructive">*</span>
+					</Label>
 					<Select value={inventoryItemId || undefined} onValueChange={setInventoryItemId}>
 						<SelectTrigger className="w-full">
 							<SelectValue placeholder="Select an item…" />

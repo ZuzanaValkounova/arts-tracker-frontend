@@ -3,7 +3,7 @@ import { Transformer } from "react-konva";
 
 // resize/rotate handles attached to the selected Konva node; converts the Konva
 // scale back into width/height so the backend stores real dimensions
-const ElementTransformer = ({ node, onTransform }) => {
+const ElementTransformer = ({ node, resizeEnabled = true, onTransform }) => {
 	const transformerRef = useRef(null);
 
 	useEffect(() => {
@@ -15,15 +15,17 @@ const ElementTransformer = ({ node, onTransform }) => {
 
 	const handleTransformEnd = () => {
 		if (!node) return;
-		const scaleX = node.scaleX();
-		const scaleY = node.scaleY();
+		const newWidth = Math.max(5, node.width() * node.scaleX());
+		const newHeight = Math.max(5, node.height() * node.scaleY());
 		node.scaleX(1);
 		node.scaleY(1);
+		node.width(newWidth);
+		node.height(newHeight);
 		onTransform({
 			x: node.x(),
 			y: node.y(),
-			width: Math.max(5, node.width() * scaleX),
-			height: Math.max(5, node.height() * scaleY),
+			width: newWidth,
+			height: newHeight,
 			rotation: node.rotation(),
 		});
 	};
@@ -31,7 +33,7 @@ const ElementTransformer = ({ node, onTransform }) => {
 	return (
 		<Transformer
 			ref={transformerRef}
-			rotateEnabled
+			resizeEnabled={resizeEnabled}
 			flipEnabled={false}
 			onTransformEnd={handleTransformEnd}
 			boundBoxFunc={(oldBox, newBox) => (newBox.width < 5 || newBox.height < 5 ? oldBox : newBox)}

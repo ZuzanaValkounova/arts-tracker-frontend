@@ -26,14 +26,14 @@ const AppLayout = () => {
 
 	return (
 		<TooltipProvider delayDuration={0}>
-			<SidebarProvider defaultOpen={false}>
+			<SidebarProvider defaultOpen={typeof window !== "undefined" && window.innerWidth >= 1280}>
 				<Sidebar footer={<UserMenu user={userQuery.data} onLogout={handleLogout} />} />
 				<SidebarInset>
 					<header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
 						<SidebarTrigger />
 					</header>
 					<main className="flex-1 overflow-y-auto p-6">
-						<div className="mx-auto w-full max-w-7xl">
+						<div className="mx-auto w-full max-w-425">
 							<Outlet />
 						</div>
 					</main>

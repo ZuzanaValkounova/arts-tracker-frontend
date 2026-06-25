@@ -5,7 +5,9 @@ import { toast } from "sonner";
 import { Search } from "lucide-react";
 
 import { ProjectsGrid } from "../components/project/ProjectsGrid";
+import { ProjectKanbanBoard } from "../components/project/ProjectKanbanBoard";
 import { ProjectForm } from "../components/project/ProjectForm";
+import { ViewSwitcher } from "../components/ui/shared/ViewSwitcher";
 import { CategoryPicker } from "../components/ui/shared/CategoryPicker";
 import { TagChip } from "../components/ui/shared/TagChip";
 import { FormDialog } from "../components/ui/shared/FormDialog";
@@ -63,6 +65,7 @@ const DashboardPage = () => {
 	const tagsParam = get("tags");
 	const statusParam = get("status"); // empty = all statuses
 	const sort = get("sort") || DEFAULT_SORT;
+	const view = get("view") || "grid";
 
 	const selectedTagIds = useMemo(() => tagsParam.split(",").filter(Boolean), [tagsParam]);
 	const selectedStatuses = useMemo(() => statusParam.split(",").filter(Boolean), [statusParam]);
@@ -104,6 +107,23 @@ const DashboardPage = () => {
 		},
 	});
 
+	// kanban
+	const statusMutation = useMutation({
+		mutationFn: ({ projectId, status }) => updateProject(token, projectId, { status }),
+		onMutate: ({ projectId, status }) => {
+			queryClient.cancelQueries({ queryKey: ["projects"] });
+			const previous = queryClient.getQueryData(["projects"]);
+			queryClient.setQueryData(["projects"], (old) =>
+				(old ?? []).map((p) => (p._id === projectId ? { ...p, status } : p)),
+			);
+			return { previous };
+		},
+		onError: (_err, _vars, ctx) => {
+			if (ctx?.previous) queryClient.setQueryData(["projects"], ctx.previous);
+		},
+		onSettled: () => queryClient.invalidateQueries({ queryKey: ["projects"] }),
+	});
+
 	const closeForm = () => {
 		setFormOpen(false);
 		setEditedProject(null);
@@ -122,9 +142,9 @@ const DashboardPage = () => {
 				: [...selectedTagIds, tagId],
 		});
 
-	// enrich + filter + count in one pass
-	// context matches search/category/tags but ignores status
-	const { statusCounts, contextCount, visibleProjects } = useMemo(() => {
+	// enrich + filter + count
+	// context matches search/category/tags, ignores status
+	const { statusCounts, contextCount, visibleProjects, contextProjects } = useMemo(() => {
 		const categoriesById = new Map((categoriesQuery.data ?? []).map((c) => [c._id, c]));
 		const tagsById = new Map((tagsQuery.data ?? []).map((t) => [t._id, t]));
 
@@ -157,7 +177,12 @@ const DashboardPage = () => {
 			)
 			.sort(SORTERS[sort]);
 
-		return { statusCounts: counts, contextCount: context.length, visibleProjects: visible };
+		return {
+			statusCounts: counts,
+			contextCount: context.length,
+			visibleProjects: visible,
+			contextProjects: [...context].sort(SORTERS[sort]),
+		};
 	}, [
 		projectsQuery.data,
 		categoriesQuery.data,
@@ -178,44 +203,10 @@ const DashboardPage = () => {
 
 	return (
 		<div className="flex flex-col gap-4">
-			<div className="flex items-center justify-between">
+			<div className="flex items-center justify-between gap-3">
 				<h1 className="text-xl font-bold">Projects</h1>
 				<NewButton label="New project" onClick={() => setFormOpen(true)} />
 			</div>
-
-			{/* summary strip: status counts that are also quick filters */}
-			{!hasNoProjects && (
-				<div className="flex flex-wrap items-center gap-2">
-					<button
-						type="button"
-						onClick={() => updateParams({ status: [] })}
-						className={cn(
-							"rounded-full px-3 py-1 text-sm transition-colors",
-							selectedStatuses.length === 0
-								? "bg-foreground text-background"
-								: "bg-muted text-muted-foreground hover:bg-muted/70",
-						)}>
-						All <span className="font-semibold">{contextCount}</span>
-					</button>
-					{PROJECT_STATUSES.filter(
-						(status) => statusCounts[status] > 0 || selectedStatuses.includes(status),
-					).map((status) => (
-						<button
-							key={status}
-							type="button"
-							onClick={() => toggleStatus(status)}
-							className={cn(
-								"rounded-full px-3 py-1 text-sm font-medium transition-all",
-								STATUS_META[status].className,
-								selectedStatuses.includes(status)
-									? "ring-2 ring-ring ring-offset-1"
-									: "opacity-80 hover:opacity-100",
-							)}>
-							{STATUS_META[status].label} <span className="font-bold">{statusCounts[status]}</span>
-						</button>
-					))}
-				</div>
-			)}
 
 			{/* search + category + tag filters and sorting */}
 			{!hasNoProjects && (
@@ -271,15 +262,63 @@ const DashboardPage = () => {
 				</div>
 			)}
 
-			{visibleProjects.length === 0 ? (
-				hasNoProjects ? (
-					<EmptyState
-						message="Welcome! Create your first project to start tracking your work."
-						action={{ label: "Create your first project", onClick: () => setFormOpen(true) }}
+			{!hasNoProjects && (
+				<div className="flex items-center gap-3">
+					<ViewSwitcher
+						value={view}
+						onChange={(next) => updateParams({ view: next === "grid" ? null : next })}
+						options={["grid", "kanban"]}
 					/>
-				) : (
-					<EmptyState message="No projects match the current filters." />
-				)
+				</div>
+			)}
+
+			{/* status quick-filters*/}
+			{!hasNoProjects && view === "grid" && (
+				<div className="flex flex-wrap items-center gap-2">
+					<button
+						type="button"
+						onClick={() => updateParams({ status: [] })}
+						className={cn(
+							"rounded-full px-3 py-1 text-sm transition-colors",
+							selectedStatuses.length === 0
+								? "bg-foreground text-background"
+								: "bg-muted text-muted-foreground hover:bg-muted/70",
+						)}>
+						All <span className="font-semibold">{contextCount}</span>
+					</button>
+					{PROJECT_STATUSES.filter(
+						(status) => statusCounts[status] > 0 || selectedStatuses.includes(status),
+					).map((status) => (
+						<button
+							key={status}
+							type="button"
+							onClick={() => toggleStatus(status)}
+							className={cn(
+								"rounded-full px-3 py-1 text-sm font-medium transition-all",
+								STATUS_META[status].className,
+								selectedStatuses.includes(status)
+									? "ring-2 ring-ring ring-offset-1"
+									: "opacity-80 hover:opacity-100",
+							)}>
+							{STATUS_META[status].label} <span className="font-bold">{statusCounts[status]}</span>
+						</button>
+					))}
+				</div>
+			)}
+
+			{hasNoProjects ? (
+				<EmptyState
+					message="Welcome! Create your first project to start tracking your work."
+					action={{ label: "Create your first project", onClick: () => setFormOpen(true) }}
+				/>
+			) : view === "kanban" ? (
+				<ProjectKanbanBoard
+					projects={contextProjects}
+					onMove={(projectId, status) => statusMutation.mutate({ projectId, status })}
+					onOpen={(projectId) => navigate(`/projects/${projectId}`)}
+				/>
+			) : visibleProjects.length === 0 ? (
+				<EmptyState message="No projects match the current filters." />
 			) : (
 				<ProjectsGrid
 					projects={visibleProjects}

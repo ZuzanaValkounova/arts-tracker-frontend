@@ -1,7 +1,7 @@
 import { Text } from "react-konva";
 
 // element: { _id, type: "text", x, y, z, width, height, rotation, content, fontSize, fontFamily, color }
-const TextElement = ({ element, isSelected, isEditing, onSelect, onChange, onStartEdit }) => {
+const TextElement = ({ element, isEditing, draggable = true, onSelect, onChange, onStartEdit }) => {
 	return (
 		<Text
 			text={element.content}
@@ -12,14 +12,13 @@ const TextElement = ({ element, isSelected, isEditing, onSelect, onChange, onSta
 			fontSize={element.fontSize}
 			fontFamily={element.fontFamily}
 			fill={element.color}
-			draggable
+			draggable={draggable}
 			visible={!isEditing}
 			onClick={onSelect}
 			onTap={onSelect}
 			onDblClick={onStartEdit}
 			onDblTap={onStartEdit}
 			onDragEnd={(e) => onChange({ x: e.target.x(), y: e.target.y() })}
-			opacity={isSelected ? 0.9 : 1}
 		/>
 	);
 };

@@ -17,7 +17,9 @@ const TagForm = ({ initialValues, onSubmit, onCancel, loading, error }) => {
 	return (
 		<form onSubmit={handleSubmit} className="flex flex-col gap-3">
 			<div className="flex flex-col gap-1.5">
-				<Label>Name *</Label>
+				<Label>
+					Name <span className="text-destructive">*</span>
+				</Label>
 				<Input value={name} onChange={(e) => setName(e.target.value)} maxLength={100} />
 			</div>
 			<div className="flex flex-col gap-1.5">

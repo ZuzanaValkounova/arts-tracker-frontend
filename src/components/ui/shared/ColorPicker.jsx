@@ -34,7 +34,7 @@ const ColorPicker = ({ value, onChange, presets = PRESET_COLORS }) => {
 						}}
 					/>
 					<span className={cn(value ? "text-foreground" : "text-muted-foreground")}>
-						{value ?? "No color"}
+						{value ?? "Choose color"}
 					</span>
 				</button>
 			</PopoverTrigger>

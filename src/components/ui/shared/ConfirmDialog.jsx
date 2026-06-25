@@ -21,11 +21,11 @@ const ConfirmDialog = ({
 	return (
 		<AlertDialog open={open} onOpenChange={(next) => !next && onCancel?.()}>
 			<AlertDialogContent>
-				<AlertDialogHeader>
+				<AlertDialogHeader className="text-center">
 					<AlertDialogTitle>{title}</AlertDialogTitle>
 					{description && <AlertDialogDescription>{description}</AlertDialogDescription>}
 				</AlertDialogHeader>
-				<AlertDialogFooter>
+				<AlertDialogFooter className="sm:justify-center">
 					<AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
 					<AlertDialogAction variant={destructive ? "destructive" : "default"} onClick={onConfirm}>
 						{confirmLabel}

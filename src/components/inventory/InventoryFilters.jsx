@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 
 import { CategoryPicker } from "../ui/shared/CategoryPicker";
@@ -9,10 +10,20 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 
 //  filters: { search, status: wishlist|owned, categoryId }
 const InventoryFilters = ({ filters, onChange, categories = [] }) => {
 	const set = (patch) => onChange({ ...filters, ...patch });
+
+	const [searchInput, setSearchInput] = useState(filters.search ?? "");
+	const debouncedSearch = useDebouncedValue(searchInput, 300);
+
+	useEffect(() => {
+		if (debouncedSearch !== (filters.search ?? "")) {
+			onChange({ ...filters, search: debouncedSearch });
+		}
+	}, [debouncedSearch]);
 
 	return (
 		<div className="flex flex-wrap items-center gap-3 rounded-lg border bg-card p-3">
@@ -20,8 +31,8 @@ const InventoryFilters = ({ filters, onChange, categories = [] }) => {
 				<Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
 				<Input
 					type="search"
-					value={filters.search ?? ""}
-					onChange={(e) => set({ search: e.target.value })}
+					value={searchInput}
+					onChange={(e) => setSearchInput(e.target.value)}
 					placeholder="Search inventory…"
 					className="pl-8"
 				/>
