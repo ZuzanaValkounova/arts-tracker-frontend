@@ -26,7 +26,7 @@ const AppLayout = () => {
 
 	return (
 		<TooltipProvider delayDuration={0}>
-			<SidebarProvider defaultOpen={typeof window !== "undefined" && window.innerWidth >= 1280}>
+			<SidebarProvider defaultOpen={false}>
 				<Sidebar footer={<UserMenu user={userQuery.data} onLogout={handleLogout} />} />
 				<SidebarInset>
 					<header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">

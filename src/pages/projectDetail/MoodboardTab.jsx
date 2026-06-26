@@ -18,6 +18,7 @@ import {
 	deleteMoodboardElement,
 } from "../../api/moodboard";
 import { useAuth } from "../../contexts/AuthContext";
+import { getNaturalImageSize, fitImageSize } from "../../utils/moodboard";
 
 const MoodboardTab = ({ project }) => {
 	const [token] = useAuth();
@@ -47,20 +48,19 @@ const MoodboardTab = ({ project }) => {
 	});
 	const addElementMutation = useMutation({
 		mutationFn: (element) => createMoodboardElement(token, projectId, element),
-		// optimistically show the new element immediately
-		onMutate: (element) => {
-			if (element.imageFile) return undefined;
-			queryClient.cancelQueries({ queryKey: moodboardKey });
-			const previous = queryClient.getQueryData(moodboardKey);
-			const optimisticElement = { ...element, _id: `temp-${Date.now()}` };
-			queryClient.setQueryData(moodboardKey, (board) =>
-				board ? { ...board, elements: [...board.elements, optimisticElement] } : board,
-			);
-			return { previous };
-		},
-		onError: (_error, _variables, context) => context?.previous && setBoard(context.previous),
 		onSuccess: setBoard,
 	});
+	// Add a non-image element to the cache synchronously, then persist
+	const addElement = (element) => {
+		const previous = queryClient.getQueryData(moodboardKey);
+		const optimisticElement = { ...element, _id: `temp-${Date.now()}` };
+		queryClient.setQueryData(moodboardKey, (board) =>
+			board ? { ...board, elements: [...board.elements, optimisticElement] } : board,
+		);
+		addElementMutation.mutate(element, {
+			onError: () => previous && setBoard(previous),
+		});
+	};
 	const updateElementMutation = useMutation({
 		mutationFn: ({ elementId, patch }) =>
 			updateMoodboardElement(token, projectId, elementId, patch),
@@ -112,7 +112,7 @@ const MoodboardTab = ({ project }) => {
 			setPendingImage(element);
 			return;
 		}
-		addElementMutation.mutate(element);
+		addElement(element);
 	};
 
 	if (moodboardQuery.isLoading) return <LoadingState />;
@@ -158,12 +158,21 @@ const MoodboardTab = ({ project }) => {
 				<ImageUpload
 					value={null}
 					onSelect={(file) => {
-						addElementMutation.mutate({ ...pendingImage, imageFile: file });
+						const base = pendingImage;
 						setPendingImage(null);
+						// size the element to the image's real proportions before saving
+						const objectUrl = URL.createObjectURL(file);
+						getNaturalImageSize(objectUrl).then((natural) => {
+							URL.revokeObjectURL(objectUrl);
+							addElementMutation.mutate({ ...base, imageFile: file, ...fitImageSize(natural) });
+						});
 					}}
 					onSelectUrl={(url) => {
-						addElementMutation.mutate({ ...pendingImage, imageUrl: url });
+						const base = pendingImage;
 						setPendingImage(null);
+						getNaturalImageSize(url).then((natural) => {
+							addElementMutation.mutate({ ...base, imageUrl: url, ...fitImageSize(natural) });
+						});
 					}}
 				/>
 			</FormDialog>

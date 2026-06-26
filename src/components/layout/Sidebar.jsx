@@ -30,7 +30,7 @@ const Sidebar = ({ items = DEFAULT_ITEMS, footer }) => {
 	return (
 		<SidebarRoot collapsible="icon">
 			<SidebarHeader>
-				<div className="flex items-center gap-2 px-1 py-1">
+				<div className="flex items-center gap-2 px-1 py-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
 					<div className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">
 						AT
 					</div>

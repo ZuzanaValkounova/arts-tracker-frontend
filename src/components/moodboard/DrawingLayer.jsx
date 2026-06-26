@@ -9,6 +9,7 @@ const DrawingLayer = ({ tool, color = DRAWING_INK, onDrawEnd }) => {
 	const layerRef = useRef(null);
 	const drawingRef = useRef(false);
 	const pointsRef = useRef([]); // [[x, y]]
+	const clearFrameRef = useRef(0); // clears the live preview one frame after a stroke ends
 	const [points, setPoints] = useState([]); // mirror to re-render the live preview
 
 	useEffect(() => {
@@ -18,17 +19,18 @@ const DrawingLayer = ({ tool, color = DRAWING_INK, onDrawEnd }) => {
 		const getPos = () => stage.getPointerPosition();
 
 		const handleDown = () => {
-			const pos = getPos();
-			if (!pos) return;
+			const pointer = getPos();
+			if (!pointer) return;
+			cancelAnimationFrame(clearFrameRef.current);
 			drawingRef.current = true;
-			pointsRef.current = [[pos.x, pos.y]];
+			pointsRef.current = [[pointer.x, pointer.y]];
 			setPoints(pointsRef.current);
 		};
 		const handleMove = () => {
 			if (!drawingRef.current) return;
-			const pos = getPos();
-			if (!pos) return;
-			pointsRef.current = [...pointsRef.current, [pos.x, pos.y]];
+			const pointer = getPos();
+			if (!pointer) return;
+			pointsRef.current = [...pointsRef.current, [pointer.x, pointer.y]];
 			setPoints(pointsRef.current);
 		};
 		const handleUp = () => {
@@ -36,13 +38,18 @@ const DrawingLayer = ({ tool, color = DRAWING_INK, onDrawEnd }) => {
 			drawingRef.current = false;
 			const current = pointsRef.current;
 			pointsRef.current = [];
-			setPoints([]);
-			if (current.length < 2) return;
+			if (current.length < 2) {
+				setPoints([]);
+				return;
+			}
 
 			const outline = getStroke(current, STROKE_OPTIONS);
-			if (!outline.length) return;
-			const xs = outline.map((p) => p[0]);
-			const ys = outline.map((p) => p[1]);
+			if (!outline.length) {
+				setPoints([]);
+				return;
+			}
+			const xs = outline.map((point) => point[0]);
+			const ys = outline.map((point) => point[1]);
 			const minX = Math.floor(Math.min(...xs));
 			const minY = Math.floor(Math.min(...ys));
 			const bbox = {
@@ -51,8 +58,17 @@ const DrawingLayer = ({ tool, color = DRAWING_INK, onDrawEnd }) => {
 				width: Math.max(1, Math.ceil(Math.max(...xs)) - minX),
 				height: Math.max(1, Math.ceil(Math.max(...ys)) - minY),
 			};
-			const pathData = getSvgPathFromStroke(outline.map((p) => [p[0] - minX, p[1] - minY]));
-			if (pathData) onDrawEnd(pathData, bbox);
+			const pathData = getSvgPathFromStroke(
+				outline.map((point) => [point[0] - minX, point[1] - minY]),
+			);
+			if (!pathData) {
+				setPoints([]);
+				return;
+			}
+
+			onDrawEnd(pathData, bbox);
+			// Hold the finished stroke on screen for one more frame
+			clearFrameRef.current = requestAnimationFrame(() => setPoints([]));
 		};
 
 		stage.on("mousedown.draw touchstart.draw", handleDown);

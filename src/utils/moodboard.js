@@ -24,4 +24,23 @@ const getSvgPathFromStroke = (points) => {
 	return result;
 };
 
-export { DRAWING_INK, STROKE_OPTIONS, getSvgPathFromStroke };
+// Load an image source and resolve its natural pixel size
+const getNaturalImageSize = (src) =>
+	new Promise((resolve) => {
+		const image = new window.Image();
+		image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+		image.onerror = () => resolve(null);
+		image.src = src;
+	});
+
+// Fit image size into a square max box, preserving aspect ratio
+const fitImageSize = (natural, max = 360) => {
+	if (!natural?.width || !natural?.height) return { width: 200, height: 200 };
+	const scale = Math.min(1, max / Math.max(natural.width, natural.height));
+	return {
+		width: Math.max(1, Math.round(natural.width * scale)),
+		height: Math.max(1, Math.round(natural.height * scale)),
+	};
+};
+
+export { DRAWING_INK, STROKE_OPTIONS, getSvgPathFromStroke, getNaturalImageSize, fitImageSize };
