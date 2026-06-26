@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { CircleCheckBig } from "lucide-react";
 
@@ -6,14 +7,32 @@ import { PROJECT_STATUSES, STATUS_META } from "../../utils/constants";
 import { cn } from "@/lib/utils";
 
 const ProjectKanbanBoard = ({ projects, onMove, onOpen }) => {
-	const columns = Object.fromEntries(PROJECT_STATUSES.map((status) => [status, []]));
-	projects.forEach((project) => columns[project.status]?.push(project));
+	const [tempProjects, setTempProjects] = useState(null);
 
-	const handleDragEnd = ({ source, destination, draggableId }) => {
-		if (!destination) return;
-		if (source.droppableId === destination.droppableId) return;
-		onMove(draggableId, destination.droppableId);
-	};
+	const displayProjects = tempProjects ?? projects;
+	const columns = Object.fromEntries(PROJECT_STATUSES.map((status) => [status, []]));
+	displayProjects.forEach((project) => columns[project.status]?.push(project));
+
+	const handleDragEnd = useCallback(
+		async ({ source, destination, draggableId }) => {
+			if (!destination) return;
+			if (source.droppableId === destination.droppableId) return;
+
+			// apply the status change locally before the mutation fires
+			setTempProjects(
+				displayProjects.map((p) =>
+					p._id === draggableId ? { ...p, status: destination.droppableId } : p,
+				),
+			);
+
+			try {
+				await onMove(draggableId, destination.droppableId);
+			} finally {
+				setTempProjects(null);
+			}
+		},
+		[displayProjects, onMove],
+	);
 
 	return (
 		<DragDropContext onDragEnd={handleDragEnd}>

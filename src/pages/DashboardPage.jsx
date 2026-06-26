@@ -314,7 +314,7 @@ const DashboardPage = () => {
 			) : view === "kanban" ? (
 				<ProjectKanbanBoard
 					projects={contextProjects}
-					onMove={(projectId, status) => statusMutation.mutate({ projectId, status })}
+					onMove={(projectId, status) => statusMutation.mutateAsync({ projectId, status })}
 					onOpen={(projectId) => navigate(`/projects/${projectId}`)}
 				/>
 			) : visibleProjects.length === 0 ? (
