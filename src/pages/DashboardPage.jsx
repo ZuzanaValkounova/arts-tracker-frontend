@@ -65,7 +65,7 @@ const DashboardPage = () => {
 	const tagsParam = get("tags");
 	const statusParam = get("status"); // empty = all statuses
 	const sort = get("sort") || DEFAULT_SORT;
-	const view = get("view") || "grid";
+	const view = get("view") || "kanban";
 
 	const selectedTagIds = useMemo(() => tagsParam.split(",").filter(Boolean), [tagsParam]);
 	const selectedStatuses = useMemo(() => statusParam.split(",").filter(Boolean), [statusParam]);
