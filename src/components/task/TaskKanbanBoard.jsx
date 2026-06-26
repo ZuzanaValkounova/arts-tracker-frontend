@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { DragDropContext } from "@hello-pangea/dnd";
 
 import { KanbanColumn } from "./KanbanColumn";
@@ -16,33 +17,58 @@ const buildColumns = (tasks) => {
 // onMove(taskId, { status?, order? }) commits a drop optimistically in TasksTab
 // onRenumber() when the sibling order gap is exhausted
 const TaskKanbanBoard = ({ tasks, onMove, onRenumber, onOpen }) => {
-	const columns = buildColumns(tasks);
+	// tempTasks holds the locally-reordered list synchronously after a drop so the board
+	// doesn't flicker back to old positions while the react-query optimistic update propagates
+	const [tempTasks, setTempTasks] = useState(null);
 
-	const handleDragEnd = ({ source, destination, draggableId }) => {
-		if (!destination) return; // dropped outside any column
-		if (source.droppableId === destination.droppableId && source.index === destination.index)
-			return;
+	const displayTasks = tempTasks ?? tasks;
+	const columns = buildColumns(displayTasks);
 
-		const working = Object.fromEntries(TASK_STATUSES.map((s) => [s, [...columns[s]]]));
-		const [moved] = working[source.droppableId].splice(source.index, 1);
-		if (!moved) return;
-		working[destination.droppableId].splice(destination.index, 0, moved);
+	const handleDragEnd = useCallback(
+		async ({ source, destination, draggableId }) => {
+			if (!destination) return;
+			if (source.droppableId === destination.droppableId && source.index === destination.index)
+				return;
 
-		const list = working[destination.droppableId];
-		const order = midpointOrder(
-			list[destination.index - 1]?.order ?? null,
-			list[destination.index + 1]?.order ?? null,
-		);
-		const statusChanged = source.droppableId !== destination.droppableId;
+			const working = Object.fromEntries(TASK_STATUSES.map((s) => [s, [...columns[s]]]));
+			const [moved] = working[source.droppableId].splice(source.index, 1);
+			if (!moved) return;
+			working[destination.droppableId].splice(destination.index, 0, moved);
 
-		if (order === null) {
-			// gap between neighbours exhausted → renumber (and still move the column if it changed)
-			if (statusChanged) onMove(draggableId, { status: destination.droppableId });
-			onRenumber();
-			return;
-		}
-		onMove(draggableId, statusChanged ? { status: destination.droppableId, order } : { order });
-	};
+			const list = working[destination.droppableId];
+			const order = midpointOrder(
+				list[destination.index - 1]?.order ?? null,
+				list[destination.index + 1]?.order ?? null,
+			);
+			const statusChanged = source.droppableId !== destination.droppableId;
+
+			// build the optimistic task list and show it immediately before the mutation fires
+			const reordered = displayTasks.map((task) => {
+				if (task._id !== draggableId) return task;
+				return {
+					...task,
+					...(statusChanged ? { status: destination.droppableId } : {}),
+					...(order !== null ? { order } : {}),
+				};
+			});
+			setTempTasks(reordered);
+
+			try {
+				if (order === null) {
+					if (statusChanged) await onMove(draggableId, { status: destination.droppableId });
+					onRenumber();
+				} else {
+					await onMove(
+						draggableId,
+						statusChanged ? { status: destination.droppableId, order } : { order },
+					);
+				}
+			} finally {
+				setTempTasks(null);
+			}
+		},
+		[columns, displayTasks, onMove, onRenumber],
+	);
 
 	return (
 		<DragDropContext onDragEnd={handleDragEnd}>

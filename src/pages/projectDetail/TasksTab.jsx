@@ -123,7 +123,7 @@ const TasksTab = ({ project, onCascade }) => {
 			{view === "kanban" ? (
 				<TaskKanbanBoard
 					tasks={tasks.filter((task) => !task.parentTaskId)}
-					onMove={(taskId, values) => updateMutation.mutate({ taskId, values })}
+					onMove={(taskId, values) => updateMutation.mutateAsync({ taskId, values })}
 					onRenumber={() => renumberMutation.mutate(null)}
 					onOpen={setOpenTaskId}
 				/>
