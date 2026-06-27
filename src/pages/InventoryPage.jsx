@@ -18,7 +18,7 @@ import {
 	deleteInventoryItem,
 } from "../api/inventory";
 import { getCategories } from "../api/categories";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 import { useUrlFilters } from "../hooks/useUrlFilters";
 
 const InventoryPage = () => {

@@ -93,6 +93,7 @@ const StatsFilters = ({ filters, onChange, categories = [], projects = [] }) => 
 						value={filters.categoryId ?? null}
 						options={categories}
 						onChange={(id) => set({ categoryId: id })}
+						emptyLabel="All categories"
 					/>
 				</div>
 				<div className="flex flex-col gap-1.5">

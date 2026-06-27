@@ -11,7 +11,7 @@ import { LoadingState } from "../../components/ui/shared/LoadingState";
 import { ErrorState } from "../../components/ui/shared/ErrorState";
 
 import { getResources, createResource, deleteResource } from "../../api/resources";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/useAuth";
 
 const ResourcesTab = ({ project }) => {
 	const [token] = useAuth();

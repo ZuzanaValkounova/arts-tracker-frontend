@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Toaster } from "./components/ui/sonner";
-import { AuthContextProvider } from "./contexts/AuthContext";
+import { AuthContextProvider } from "./contexts/AuthContextProvider";
 import { AppLayout } from "./components/layout/AppLayout";
 import { RequireAuth } from "./components/layout/RequireAuth";
 

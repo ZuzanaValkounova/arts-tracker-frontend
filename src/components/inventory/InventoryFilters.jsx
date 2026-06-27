@@ -23,6 +23,7 @@ const InventoryFilters = ({ filters, onChange, categories = [] }) => {
 		if (debouncedSearch !== (filters.search ?? "")) {
 			onChange({ ...filters, search: debouncedSearch });
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [debouncedSearch]);
 
 	return (
@@ -53,6 +54,7 @@ const InventoryFilters = ({ filters, onChange, categories = [] }) => {
 				value={filters.categoryId ?? null}
 				options={categories}
 				onChange={(id) => set({ categoryId: id })}
+				emptyLabel="All categories"
 			/>
 		</div>
 	);

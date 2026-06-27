@@ -6,7 +6,7 @@ import { LoadingState } from "../components/ui/shared/LoadingState";
 import { ErrorState } from "../components/ui/shared/ErrorState";
 
 import { getTags, createTag, updateTag, deleteTag } from "../api/tags";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 
 const TagsPage = () => {
 	const [token] = useAuth();

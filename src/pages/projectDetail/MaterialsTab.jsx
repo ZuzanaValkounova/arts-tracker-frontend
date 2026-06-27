@@ -14,7 +14,7 @@ import {
 	removeProjectMaterial,
 } from "../../api/projects";
 import { getInventoryItems } from "../../api/inventory";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/useAuth";
 
 const MaterialsTab = ({ project }) => {
 	const [token] = useAuth();

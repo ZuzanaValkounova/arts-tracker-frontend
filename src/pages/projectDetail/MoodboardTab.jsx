@@ -17,7 +17,7 @@ import {
 	updateMoodboardElement,
 	deleteMoodboardElement,
 } from "../../api/moodboard";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/useAuth";
 import { getNaturalImageSize, fitImageSize } from "../../utils/moodboard";
 
 const MoodboardTab = ({ project }) => {

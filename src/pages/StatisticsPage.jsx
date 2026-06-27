@@ -9,7 +9,7 @@ import { ErrorState } from "../components/ui/shared/ErrorState";
 import { getProjectStatistics, getTaskStatistics, getTimelineStatistics } from "../api/statistics";
 import { getCategories } from "../api/categories";
 import { getProjects } from "../api/projects";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 
 const iso = (date) => date.toISOString().slice(0, 10);
 

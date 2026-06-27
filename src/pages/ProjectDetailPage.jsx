@@ -25,7 +25,7 @@ import { getProject, updateProject, deleteProject, upsertProjectReflection } fro
 import { getTasks } from "../api/tasks";
 import { getCategories } from "../api/categories";
 import { getTags, createTag } from "../api/tags";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 import { computeProgress } from "../utils/tasks";
 
 const ProjectDetailPage = () => {
@@ -109,8 +109,8 @@ const ProjectDetailPage = () => {
 
 	const enrichedProject = useMemo(() => {
 		if (!project) return null;
-		const allCategories = categories;
-		const allTags = tags;
+		const allCategories = categoriesQuery.data ?? [];
+		const allTags = tagsQuery.data ?? [];
 		return {
 			...project,
 			category: allCategories.find((c) => c._id === project.categoryId),

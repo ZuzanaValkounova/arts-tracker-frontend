@@ -63,7 +63,7 @@ const AddMaterialDialog = ({ open, inventory = [], initialValues, onSubmit, onCl
 						<Input
 							type="number"
 							min={0}
-							step="0.01"
+							step="1"
 							value={quantity ?? ""}
 							onChange={(e) => setQuantity(e.target.value === "" ? null : Number(e.target.value))}
 							className="w-24"
@@ -74,7 +74,7 @@ const AddMaterialDialog = ({ open, inventory = [], initialValues, onSubmit, onCl
 						<Input
 							type="number"
 							min={0}
-							step="0.01"
+							step="1"
 							value={actualCost ?? ""}
 							onChange={(e) => setActualCost(e.target.value === "" ? null : Number(e.target.value))}
 							className="w-28"

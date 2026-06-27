@@ -1,27 +1,30 @@
 import { useState, useCallback } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { CircleCheckBig } from "lucide-react";
+import { CircleCheckBig, Archive } from "lucide-react";
 
 import { ProjectCard } from "./ProjectCard";
 import { PROJECT_STATUSES, STATUS_META } from "../../utils/constants";
 import { cn } from "@/lib/utils";
 
-const ProjectKanbanBoard = ({ projects, onMove, onOpen }) => {
+const ProjectKanbanBoard = ({ projects, onMove, onOpen, statuses = PROJECT_STATUSES }) => {
 	const [tempProjects, setTempProjects] = useState(null);
 
 	const displayProjects = tempProjects ?? projects;
-	const columns = Object.fromEntries(PROJECT_STATUSES.map((status) => [status, []]));
+	const columns = Object.fromEntries(statuses.map((status) => [status, []]));
 	displayProjects.forEach((project) => columns[project.status]?.push(project));
+	Object.values(columns).forEach((column) =>
+		column.sort((first, second) => String(first._id).localeCompare(String(second._id))),
+	);
 
 	const handleDragEnd = useCallback(
 		async ({ source, destination, draggableId }) => {
 			if (!destination) return;
 			if (source.droppableId === destination.droppableId) return;
 
-			// apply the status change locally before the mutation fires
+			// apply the status change locally before the mutation fires and change its status
 			setTempProjects(
-				displayProjects.map((p) =>
-					p._id === draggableId ? { ...p, status: destination.droppableId } : p,
+				displayProjects.map((project) =>
+					project._id === draggableId ? { ...project, status: destination.droppableId } : project,
 				),
 			);
 
@@ -37,14 +40,18 @@ const ProjectKanbanBoard = ({ projects, onMove, onOpen }) => {
 	return (
 		<DragDropContext onDragEnd={handleDragEnd}>
 			<div className="flex gap-3 overflow-x-auto pb-2">
-				{PROJECT_STATUSES.map((status) => {
+				{statuses.map((status) => {
 					const isDone = status === "completed";
+					const isArchived = status === "archived";
 					return (
 						<div
 							key={status}
 							className={cn(
-								"flex min-w-60 flex-1 flex-col rounded-lg",
-								isDone ? "bg-green-50/70 ring-1 ring-green-200" : "bg-muted/50",
+								"flex min-w-60 flex-1 flex-col rounded-lg transition-opacity",
+								isDone && "bg-green-50/70 ring-1 ring-green-200",
+								isArchived &&
+									"border border-dashed border-zinc-300 bg-zinc-100/60 opacity-60 hover:opacity-100",
+								!isDone && !isArchived && "bg-muted/50",
 							)}>
 							<div className="flex items-center justify-between px-3 py-2">
 								<span
@@ -53,6 +60,7 @@ const ProjectKanbanBoard = ({ projects, onMove, onOpen }) => {
 										STATUS_META[status].className,
 									)}>
 									{isDone && <CircleCheckBig className="size-3.5" />}
+									{isArchived && <Archive className="size-3.5" />}
 									{STATUS_META[status].label}
 								</span>
 								<span className="text-xs text-muted-foreground">{columns[status].length}</span>
@@ -75,7 +83,8 @@ const ProjectKanbanBoard = ({ projects, onMove, onOpen }) => {
 														{...prov.dragHandleProps}
 														style={{
 															...prov.draggableProps.style,
-															opacity: snap.isDragging ? 0.85 : 1,
+															opacity: snap.isDragging ? 0.85 : isArchived ? 0.85 : 1,
+															filter: isArchived ? "grayscale(0.4)" : undefined,
 														}}>
 														<ProjectCard project={project} onOpen={() => onOpen(project._id)} />
 													</div>

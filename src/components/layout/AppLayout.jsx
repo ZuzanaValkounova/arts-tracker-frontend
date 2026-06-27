@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
@@ -7,7 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Sidebar } from "./Sidebar";
 import { UserMenu } from "./UserMenu";
 import { getCurrentUser } from "../../api/users";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/useAuth";
 
 const AppLayout = () => {
 	const [token, setToken] = useAuth();
@@ -19,6 +20,13 @@ const AppLayout = () => {
 		enabled: Boolean(token),
 	});
 
+	useEffect(() => {
+		if (userQuery.error?.status === 401) {
+			setToken(null);
+			navigate("/login", { replace: true });
+		}
+	}, [userQuery.error, setToken, navigate]);
+
 	const handleLogout = () => {
 		setToken(null);
 		navigate("/login");
@@ -28,7 +36,7 @@ const AppLayout = () => {
 		<TooltipProvider delayDuration={0}>
 			<SidebarProvider defaultOpen={false}>
 				<Sidebar footer={<UserMenu user={userQuery.data} onLogout={handleLogout} />} />
-				<SidebarInset>
+				<SidebarInset className="min-w-0">
 					<header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
 						<SidebarTrigger />
 					</header>

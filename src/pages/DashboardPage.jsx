@@ -2,13 +2,15 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Search } from "lucide-react";
+import { Search, Archive } from "lucide-react";
+
+import { Toggle } from "@/components/ui/toggle";
 
 import { ProjectsGrid } from "../components/project/ProjectsGrid";
 import { ProjectKanbanBoard } from "../components/project/ProjectKanbanBoard";
 import { ProjectForm } from "../components/project/ProjectForm";
 import { ViewSwitcher } from "../components/ui/shared/ViewSwitcher";
-import { CategoryPicker } from "../components/ui/shared/CategoryPicker";
+import { CategoryPicker, UNCATEGORIZED } from "../components/ui/shared/CategoryPicker";
 import { TagChip } from "../components/ui/shared/TagChip";
 import { FormDialog } from "../components/ui/shared/FormDialog";
 import { ConfirmDialog } from "../components/ui/shared/ConfirmDialog";
@@ -29,7 +31,7 @@ import { cn } from "@/lib/utils";
 import { getProjects, createProject, updateProject, deleteProject } from "../api/projects";
 import { getCategories } from "../api/categories";
 import { getTags, createTag } from "../api/tags";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 import { useUrlFilters } from "../hooks/useUrlFilters";
 import { PROJECT_STATUSES, STATUS_META } from "../utils/constants";
 
@@ -66,6 +68,7 @@ const DashboardPage = () => {
 	const statusParam = get("status"); // empty = all statuses
 	const sort = get("sort") || DEFAULT_SORT;
 	const view = get("view") || "kanban";
+	const hideArchived = get("hideArchived") === "1";
 
 	const selectedTagIds = useMemo(() => tagsParam.split(",").filter(Boolean), [tagsParam]);
 	const selectedStatuses = useMemo(() => statusParam.split(",").filter(Boolean), [statusParam]);
@@ -107,14 +110,16 @@ const DashboardPage = () => {
 		},
 	});
 
-	// kanban
+	// kanban: optimistic update
 	const statusMutation = useMutation({
 		mutationFn: ({ projectId, status }) => updateProject(token, projectId, { status }),
 		onMutate: ({ projectId, status }) => {
 			queryClient.cancelQueries({ queryKey: ["projects"] });
 			const previous = queryClient.getQueryData(["projects"]);
 			queryClient.setQueryData(["projects"], (old) =>
-				(old ?? []).map((p) => (p._id === projectId ? { ...p, status } : p)),
+				(old ?? []).map((project) =>
+					project._id === projectId ? { ...project, status } : project,
+				),
 			);
 			return { previous };
 		},
@@ -157,12 +162,17 @@ const DashboardPage = () => {
 		const searchLower = search.trim().toLowerCase();
 		const context = enriched.filter((project) => {
 			if (searchLower && !project.name.toLowerCase().includes(searchLower)) return false;
-			if (categoryId && project.categoryId !== categoryId) return false;
+			if (categoryId === UNCATEGORIZED) {
+				if (project.categoryId) return false; // keep only projects without a category
+			} else if (categoryId && project.categoryId !== categoryId) {
+				return false;
+			}
 			if (
 				selectedTagIds.length &&
-				!selectedTagIds.every((id) => (project.tagIds ?? []).includes(id))
+				!selectedTagIds.some((id) => (project.tagIds ?? []).includes(id))
 			)
 				return false;
+			if (hideArchived && project.status === "archived") return false;
 			return true;
 		});
 
@@ -192,6 +202,7 @@ const DashboardPage = () => {
 		selectedTagIds,
 		selectedStatuses,
 		sort,
+		hideArchived,
 	]);
 
 	if (projectsQuery.isLoading) return <LoadingState />;
@@ -226,6 +237,8 @@ const DashboardPage = () => {
 							value={categoryId}
 							options={categoriesQuery.data ?? []}
 							onChange={(id) => updateParams({ category: id })}
+							emptyLabel="All categories"
+							allowUncategorized
 						/>
 						<div className="ml-auto flex items-center gap-2">
 							<span className="text-xs text-muted-foreground">Sort</span>
@@ -266,9 +279,19 @@ const DashboardPage = () => {
 				<div className="flex items-center gap-3">
 					<ViewSwitcher
 						value={view}
-						onChange={(next) => updateParams({ view: next === "grid" ? null : next })}
+						onChange={(next) => updateParams({ view: next === "kanban" ? null : next })}
 						options={["grid", "kanban"]}
 					/>
+					<Toggle
+						variant="outline"
+						size="sm"
+						pressed={hideArchived}
+						onPressedChange={(pressed) => updateParams({ hideArchived: pressed ? "1" : null })}
+						aria-label="Hide archived projects"
+						className="gap-1.5">
+						<Archive className="size-3.5" />
+						<span className="text-xs">{hideArchived ? "Show archived" : "Hide archived"}</span>
+					</Toggle>
 				</div>
 			)}
 
@@ -314,6 +337,9 @@ const DashboardPage = () => {
 			) : view === "kanban" ? (
 				<ProjectKanbanBoard
 					projects={contextProjects}
+					statuses={
+						hideArchived ? PROJECT_STATUSES.filter((s) => s !== "archived") : PROJECT_STATUSES
+					}
 					onMove={(projectId, status) => statusMutation.mutateAsync({ projectId, status })}
 					onOpen={(projectId) => navigate(`/projects/${projectId}`)}
 				/>

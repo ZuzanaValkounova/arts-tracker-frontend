@@ -21,7 +21,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { getResources, createResource, deleteResource } from "../api/resources";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/useAuth";
 import { useUrlFilters } from "../hooks/useUrlFilters";
 import { useDebouncedValue } from "../hooks/useDebouncedValue";
 
@@ -41,6 +41,7 @@ const ResourcesPage = () => {
 	const debouncedSearch = useDebouncedValue(searchInput, 300);
 	useEffect(() => {
 		if (debouncedSearch !== search) updateParams({ search: debouncedSearch });
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [debouncedSearch]);
 
 	const [formOpen, setFormOpen] = useState(false);

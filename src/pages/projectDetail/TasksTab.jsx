@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { EyeOff } from "lucide-react";
 
 import { ViewSwitcher } from "../../components/ui/shared/ViewSwitcher";
 import { FormDialog } from "../../components/ui/shared/FormDialog";
@@ -12,9 +13,21 @@ import { TaskKanbanBoard } from "../../components/task/TaskKanbanBoard";
 import { TaskListView } from "../../components/task/TaskListView";
 import { TaskForm } from "../../components/task/TaskForm";
 import { TaskDetailDialog } from "../../components/task/TaskDetailDialog";
+import { Toggle } from "@/components/ui/toggle";
 
 import { getTasks, createTask, updateTask, deleteTask, renumberTasks } from "../../api/tasks";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/useAuth";
+
+// returns a filtered task list with completed tasks hidden; descendants of completed parents are also hidden
+const filterOutCompleted = (tasks) => {
+	const byId = new Map(tasks.map((task) => [task._id, task]));
+	const isHidden = (task) => {
+		if (task.status === "completed") return true;
+		const parent = task.parentTaskId ? byId.get(task.parentTaskId) : null;
+		return parent ? isHidden(parent) : false;
+	};
+	return tasks.filter((task) => !isHidden(task));
+};
 
 const TasksTab = ({ project, onCascade }) => {
 	const [token] = useAuth();
@@ -22,6 +35,7 @@ const TasksTab = ({ project, onCascade }) => {
 	const projectId = project._id;
 
 	const [view, setView] = useState("kanban");
+	const [hideCompleted, setHideCompleted] = useState(false);
 	const [formOpen, setFormOpen] = useState(false);
 	const [editedTask, setEditedTask] = useState(null);
 	const [parentTask, setParentTask] = useState(null);
@@ -33,6 +47,11 @@ const TasksTab = ({ project, onCascade }) => {
 		queryFn: () => getTasks(token, { projectId }),
 	});
 	const tasks = tasksQuery.data ?? [];
+
+	const visibleTasks = useMemo(() => {
+		const allTasks = tasksQuery.data ?? [];
+		return hideCompleted ? filterOutCompleted(allTasks) : allTasks;
+	}, [tasksQuery.data, hideCompleted]);
 
 	const invalidate = () => {
 		queryClient.invalidateQueries({ queryKey: ["tasks"] });
@@ -115,21 +134,33 @@ const TasksTab = ({ project, onCascade }) => {
 
 	return (
 		<div className="flex flex-col gap-3">
-			<div className="flex items-center justify-between">
-				<ViewSwitcher value={view} onChange={setView} options={["list", "kanban"]} />
+			<div className="flex items-center justify-between gap-3">
+				<div className="flex items-center gap-2">
+					<ViewSwitcher value={view} onChange={setView} options={["list", "kanban"]} />
+					<Toggle
+						variant="outline"
+						size="sm"
+						pressed={hideCompleted}
+						onPressedChange={setHideCompleted}
+						aria-label="Hide completed tasks"
+						className="gap-1.5">
+						<EyeOff className="size-3.5" />
+						<span className="text-xs">{hideCompleted ? "Show completed" : "Hide completed"}</span>
+					</Toggle>
+				</div>
 				<NewButton label="New task" onClick={() => setFormOpen(true)} />
 			</div>
 
 			{view === "kanban" ? (
 				<TaskKanbanBoard
-					tasks={tasks.filter((task) => !task.parentTaskId)}
+					tasks={visibleTasks.filter((task) => !task.parentTaskId)}
 					onMove={(taskId, values) => updateMutation.mutateAsync({ taskId, values })}
 					onRenumber={() => renumberMutation.mutate(null)}
 					onOpen={setOpenTaskId}
 				/>
 			) : (
 				<TaskListView
-					tasks={tasks}
+					tasks={visibleTasks}
 					onToggleComplete={handleToggleComplete}
 					onEdit={(task) => {
 						setEditedTask(task);

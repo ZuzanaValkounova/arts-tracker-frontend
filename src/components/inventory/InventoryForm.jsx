@@ -136,7 +136,7 @@ const InventoryForm = ({ initialValues, categories = [], onSubmit, onCancel, loa
 					<Input
 						type="number"
 						min={0}
-						step="0.01"
+						step="1"
 						value={values.price ?? ""}
 						onChange={(e) => set({ price: e.target.value === "" ? null : Number(e.target.value) })}
 						className="w-24"
