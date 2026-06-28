@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "sonner";
 function Toaster({ ...props }) {
 	return (
 		<Sonner
-			theme="light"
+			theme="dark"
 			className="toaster group"
 			style={{
 				"--normal-bg": "var(--popover)",

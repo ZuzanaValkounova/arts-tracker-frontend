@@ -113,7 +113,7 @@ const InventoryPage = () => {
 					onCancel={closeForm}
 				/>
 				{saveMutation.isError && (
-					<p className="mt-2 text-xs text-red-600">{saveMutation.error.message}</p>
+					<p className="mt-2 text-xs text-destructive">{saveMutation.error.message}</p>
 				)}
 			</FormDialog>
 

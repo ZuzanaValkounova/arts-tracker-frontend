@@ -37,9 +37,9 @@ const ReflectionDialog = ({ open, initialValues, onSubmit, onClose, loading }) =
 	return (
 		<FormDialog open={open} onClose={onClose} title="Project complete! 🎉">
 			<form onSubmit={handleSubmit} className="flex flex-col gap-3">
-				<div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50/70 p-3 text-sm">
-					<PartyPopper className="size-5 shrink-0 text-green-600" />
-					<p className="text-green-800">
+				<div className="flex items-center gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm">
+					<PartyPopper className="size-5 shrink-0 text-emerald-400" />
+					<p className="text-emerald-200">
 						Nice work finishing this one! Take a moment to capture what you've learned and reflect.
 					</p>
 				</div>

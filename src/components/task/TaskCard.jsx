@@ -12,12 +12,12 @@ const TaskCard = ({ task, onOpen, dragging = false }) => {
 			onClick={() => onOpen?.(task._id)}
 			className={cn(
 				"cursor-pointer rounded-md border bg-card p-3 shadow-sm transition-colors hover:border-ring",
-				completed && "border-green-200 bg-green-50/50",
+				completed && "border-emerald-500/30 bg-emerald-500/10",
 				dragging && "opacity-50",
 			)}>
 			<div className="flex items-start justify-between gap-2">
 				<span className="flex items-start gap-1.5 text-sm font-medium">
-					{completed && <CircleCheckBig className="mt-0.5 size-4 shrink-0 text-green-600" />}
+					{completed && <CircleCheckBig className="mt-0.5 size-4 shrink-0 text-emerald-400" />}
 					<span className={cn(completed && "text-muted-foreground line-through")}>{task.name}</span>
 				</span>
 				<PriorityBadge priority={task.priority} />

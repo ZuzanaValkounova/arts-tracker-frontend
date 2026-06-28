@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
+import { ChevronRight } from "lucide-react";
 
 import { INVENTORY_TYPES, INVENTORY_STATUSES } from "../../utils/constants";
 import { ImageUpload } from "../ui/shared/ImageUpload";
@@ -47,6 +48,7 @@ const InventoryForm = ({ initialValues, categories = [], onSubmit, onCancel, loa
 	const [imageFile, setImageFile] = useState(null);
 	const [removeImage, setRemoveImage] = useState(false);
 	const [errors, setErrors] = useState({});
+	const [showMore, setShowMore] = useState(Boolean(initialValues));
 
 	const set = (patch) => setValues((prev) => ({ ...prev, ...patch }));
 
@@ -87,15 +89,6 @@ const InventoryForm = ({ initialValues, categories = [], onSubmit, onCancel, loa
 				{errors.name && <span className="text-xs text-destructive">{errors.name}</span>}
 			</div>
 
-			<div className="flex flex-col gap-1.5">
-				<Label>Description</Label>
-				<Textarea
-					value={values.description}
-					onChange={(e) => set({ description: e.target.value })}
-					rows={2}
-				/>
-			</div>
-
 			<div className="flex flex-wrap items-end gap-4">
 				<div className="flex flex-col gap-1.5">
 					<Label>Type</Label>
@@ -131,75 +124,102 @@ const InventoryForm = ({ initialValues, categories = [], onSubmit, onCancel, loa
 						className="w-20"
 					/>
 				</div>
-				<div className="flex flex-col gap-1.5">
-					<Label>Price</Label>
-					<Input
-						type="number"
-						min={0}
-						step="1"
-						value={values.price ?? ""}
-						onChange={(e) => set({ price: e.target.value === "" ? null : Number(e.target.value) })}
-						className="w-24"
-					/>
-				</div>
-				<div className="flex flex-col gap-1.5">
-					<Label>Currency</Label>
-					<Input
-						value="CZK"
-						disabled
-						readOnly
-						title="Only one currency supported for now"
-						className="w-16 uppercase"
-					/>
-				</div>
 			</div>
 
-			<div className="flex flex-col gap-1.5">
-				<Label>Source URL</Label>
-				<Input
-					type="url"
-					value={values.source}
-					onChange={(e) => set({ source: e.target.value })}
-					placeholder="https://…"
-				/>
-				{errors.source && <span className="text-xs text-destructive">{errors.source}</span>}
-			</div>
+			<button
+				type="button"
+				onClick={() => setShowMore((open) => !open)}
+				aria-expanded={showMore}
+				className="-my-1 inline-flex w-fit items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+				<ChevronRight className={cn("size-4 transition-transform", showMore && "rotate-90")} />
+				More options
+			</button>
 
-			<div className="flex flex-col gap-1.5">
-				<Label>Categories</Label>
-				<div className="flex flex-wrap gap-1.5">
-					{categories.map((category) => (
-						<button
-							key={category._id}
-							type="button"
-							onClick={() => toggleCategory(category._id)}
-							className={cn(
-								"inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs transition-colors",
-								values.categoryIds.includes(category._id)
-									? "border-primary bg-primary/10 text-foreground"
-									: "border-border text-muted-foreground hover:border-ring",
-							)}>
-							<CategoryIcon name={category.icon} className="size-3.5" />
-							{category.name}
-						</button>
-					))}
+			{showMore && (
+				<div className="flex flex-col gap-4 border-l border-border/60 pl-3">
+					<div className="flex flex-col gap-1.5">
+						<Label>Description</Label>
+						<Textarea
+							value={values.description}
+							onChange={(e) => set({ description: e.target.value })}
+							rows={2}
+						/>
+					</div>
+
+					<div className="flex flex-wrap items-end gap-4">
+						<div className="flex flex-col gap-1.5">
+							<Label>Price</Label>
+							<Input
+								type="number"
+								min={0}
+								step="0.01"
+								value={values.price ?? ""}
+								onChange={(e) =>
+									set({ price: e.target.value === "" ? null : Number(e.target.value) })
+								}
+								className="w-24"
+							/>
+						</div>
+						<div className="flex flex-col gap-1.5">
+							<Label>Currency</Label>
+							<Input
+								value="CZK"
+								disabled
+								readOnly
+								title="Only CZK is supported for now"
+								className="w-16 uppercase"
+							/>
+						</div>
+					</div>
+
+					<div className="flex flex-col gap-1.5">
+						<Label>Source URL</Label>
+						<Input
+							type="url"
+							value={values.source}
+							onChange={(e) => set({ source: e.target.value })}
+							placeholder="https://…"
+						/>
+						{errors.source && <span className="text-xs text-destructive">{errors.source}</span>}
+					</div>
+
+					<div className="flex flex-col gap-1.5">
+						<Label>Categories</Label>
+						<div className="flex flex-wrap gap-1.5">
+							{categories.map((category) => (
+								<button
+									key={category._id}
+									type="button"
+									onClick={() => toggleCategory(category._id)}
+									className={cn(
+										"inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs transition-colors",
+										values.categoryIds.includes(category._id)
+											? "border-primary bg-primary/10 text-foreground"
+											: "border-border text-muted-foreground hover:border-ring",
+									)}>
+									<CategoryIcon name={category.icon} className="size-3.5" />
+									{category.name}
+								</button>
+							))}
+						</div>
+					</div>
+
+					<div className="flex flex-col gap-1.5">
+						<Label>Image</Label>
+						<ImageUpload
+							value={removeImage ? null : (initialValues?.image?.url ?? null)}
+							onSelect={(file) => {
+								setImageFile(file);
+								setRemoveImage(false);
+							}}
+							onRemove={() => {
+								setImageFile(null);
+								setRemoveImage(true);
+							}}
+						/>
+					</div>
 				</div>
-			</div>
-
-			<div className="flex flex-col gap-1.5">
-				<Label>Image</Label>
-				<ImageUpload
-					value={removeImage ? null : (initialValues?.image?.url ?? null)}
-					onSelect={(file) => {
-						setImageFile(file);
-						setRemoveImage(false);
-					}}
-					onRemove={() => {
-						setImageFile(null);
-						setRemoveImage(true);
-					}}
-				/>
-			</div>
+			)}
 
 			<div className="flex justify-end gap-2 pt-2">
 				<Button type="button" variant="outline" onClick={onCancel}>

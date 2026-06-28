@@ -14,6 +14,17 @@ const TOOLS = [
 	{ id: "draw", label: "Draw", icon: Paintbrush },
 ];
 
+const DEFAULT_PALETTE = [
+	"#2b2b2b",
+	"#f5f0e6",
+	"#9b8fd4",
+	"#86b48f",
+	"#d99a6c",
+	"#cf8e8e",
+	"#d9b86c",
+	"#7fa8c9",
+];
+
 const MoodboardToolbar = ({
 	activeTool,
 	onToolChange,
@@ -38,7 +49,7 @@ const MoodboardToolbar = ({
 			</ToggleGroup>
 			<Separator orientation="vertical" className="h-6" />
 			<div className="flex items-center gap-1.5">
-				{palette.map((hex) => (
+				{[...new Set([...DEFAULT_PALETTE, ...palette])].map((hex) => (
 					<ColorSwatch
 						key={hex}
 						color={hex}

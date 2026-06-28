@@ -97,8 +97,8 @@ const InventoryList = ({ items, onEdit, onDelete }) => {
 						className={cn(
 							"rounded-full",
 							getValue() === "owned"
-								? "bg-green-100 text-green-700"
-								: "bg-purple-100 text-purple-700",
+								? "bg-emerald-400/15 text-emerald-200"
+								: "bg-violet-400/15 text-violet-200",
 						)}>
 						{getValue() === "owned" ? "Owned" : "Wishlist"}
 					</Badge>

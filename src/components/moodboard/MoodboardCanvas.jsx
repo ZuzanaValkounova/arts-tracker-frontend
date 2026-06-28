@@ -294,9 +294,11 @@ const MoodboardCanvas = ({
 						lineHeight: 1.1,
 						padding: 0,
 						margin: 0,
-						border: "1px solid #3b82f6",
+						border: "1px solid var(--ring)",
+						borderRadius: "4px",
 						outline: "none",
-						background: "white",
+						background: "var(--card)",
+						boxShadow: "0 2px 10px rgb(0 0 0 / 0.35)",
 						resize: "none",
 						overflow: "hidden",
 					}}
