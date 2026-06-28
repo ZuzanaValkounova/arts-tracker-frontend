@@ -38,16 +38,16 @@ const ActivityChart = ({ title, data, granularity }) => {
 							type="monotone"
 							dataKey="created"
 							name="Created"
-							stroke="#94a3b8"
-							fill="#94a3b8"
+							stroke="#a899db"
+							fill="#a899db"
 							fillOpacity={0.15}
 						/>
 						<Area
 							type="monotone"
 							dataKey="completed"
 							name="Completed"
-							stroke="#22c55e"
-							fill="#22c55e"
+							stroke="#86b48f"
+							fill="#86b48f"
 							fillOpacity={0.25}
 						/>
 					</AreaChart>

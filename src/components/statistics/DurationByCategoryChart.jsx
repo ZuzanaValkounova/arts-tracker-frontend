@@ -27,7 +27,7 @@ const DurationByCategoryChart = ({ data = [] }) => {
 								"Avg. duration",
 							]}
 						/>
-						<Bar dataKey="days" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+						<Bar dataKey="days" fill="#c98f9c" radius={[0, 4, 4, 0]} />
 					</BarChart>
 				</ResponsiveContainer>
 			)}

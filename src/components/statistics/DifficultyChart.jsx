@@ -25,7 +25,7 @@ const DifficultyChart = ({ data }) => {
 						<XAxis dataKey="name" tick={{ fontSize: 12 }} />
 						<YAxis allowDecimals={false} width={28} />
 						<Tooltip />
-						<Bar dataKey="count" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+						<Bar dataKey="count" fill="#d9b86c" radius={[4, 4, 0, 0]} />
 					</BarChart>
 				</ResponsiveContainer>
 			)}

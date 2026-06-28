@@ -3,11 +3,11 @@ import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recha
 import { STATUS_META } from "../../utils/constants";
 
 const STATUS_COLORS = {
-	planned: "#cbd5e1",
-	inProgress: "#3b82f6",
-	paused: "#f59e0b",
-	completed: "#22c55e",
-	archived: "#a1a1aa",
+	planned: "#bcb3a8",
+	inProgress: "#9b8fd4",
+	paused: "#d9b86c",
+	completed: "#86b48f",
+	archived: "#8a857e",
 };
 
 // data: byStatus [{ _id: "completed", count: 3 }]

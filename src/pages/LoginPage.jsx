@@ -29,8 +29,14 @@ const LoginPage = () => {
 	};
 
 	return (
-		<div className="flex min-h-svh items-center justify-center bg-muted/30 p-4">
-			<Card className="w-full max-w-sm">
+		<div className="relative flex min-h-svh items-center justify-center overflow-hidden bg-muted/30 p-4">
+			<img
+				src="/decor/splash-wide.svg"
+				alt=""
+				aria-hidden="true"
+				className="pointer-events-none absolute -bottom-20 -left-32 w-350 max-w-none opacity-25"
+			/>
+			<Card className="relative w-full max-w-sm">
 				<CardHeader className="text-center">
 					<CardTitle className="text-lg">Welcome back</CardTitle>
 					<CardDescription>Log in to your account.</CardDescription>

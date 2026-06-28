@@ -7,6 +7,8 @@ import {
 	Trash2,
 	ExternalLink,
 	ImageOff,
+	Wrench,
+	Droplet,
 } from "lucide-react";
 import {
 	useReactTable,
@@ -78,8 +80,13 @@ const InventoryList = ({ items, onEdit, onDelete }) => {
 			columnHelper.accessor("type", {
 				header: ({ column }) => <SortButton column={column}>Type</SortButton>,
 				cell: ({ getValue }) => (
-					<span className="text-muted-foreground">
-						{getValue() === "tool" ? "🔧 Tool" : "🧵 Consumable"}
+					<span className="inline-flex items-center gap-1.5 text-muted-foreground">
+						{getValue() === "tool" ? (
+							<Wrench className="size-3.5" />
+						) : (
+							<Droplet className="size-3.5" />
+						)}
+						{getValue() === "tool" ? "Tool" : "Consumable"}
 					</span>
 				),
 			}),

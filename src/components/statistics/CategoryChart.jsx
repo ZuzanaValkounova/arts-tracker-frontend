@@ -19,7 +19,7 @@ const CategoryChart = ({ data }) => {
 						<XAxis type="number" allowDecimals={false} />
 						<YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 12 }} />
 						<Tooltip />
-						<Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+						<Bar dataKey="count" fill="#9b8fd4" radius={[0, 4, 4, 0]} />
 					</BarChart>
 				</ResponsiveContainer>
 			)}

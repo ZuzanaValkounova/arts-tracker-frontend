@@ -1,4 +1,4 @@
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Wrench } from "lucide-react";
 
 import { CostSummary } from "./CostSummary";
 import { EmptyState } from "../ui/shared/EmptyState";
@@ -35,7 +35,7 @@ const MaterialsPanel = ({ materials, totals, onAdd, onEdit, onRemove }) => {
 								<td className="py-2">
 									{material.inventoryItem?.name ?? "(deleted item)"}
 									{material.inventoryItem?.type === "tool" && (
-										<span className="ml-1 text-xs text-muted-foreground">🔧</span>
+										<Wrench className="ml-1 inline size-3 align-[-1px] text-muted-foreground" />
 									)}
 								</td>
 								<td className="py-2">{material.quantity ?? "—"}</td>

@@ -34,9 +34,12 @@ const AppLayout = () => {
 
 	return (
 		<TooltipProvider delayDuration={0}>
+			<div className="app-decor" aria-hidden="true">
+				<img className="decor-bottom" src="/decor/splash-wide.svg" alt="" />
+			</div>
 			<SidebarProvider defaultOpen={false}>
 				<Sidebar footer={<UserMenu user={userQuery.data} onLogout={handleLogout} />} />
-				<SidebarInset className="min-w-0">
+				<SidebarInset className="min-w-0 bg-transparent">
 					<header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
 						<SidebarTrigger />
 					</header>

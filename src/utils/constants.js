@@ -3,17 +3,17 @@ const TASK_STATUSES = ["planned", "inProgress", "paused", "completed"];
 const PRIORITIES = ["low", "medium", "high"];
 
 const STATUS_META = {
-	planned: { label: "Planned", className: "bg-slate-100 text-slate-700" },
-	inProgress: { label: "In progress", className: "bg-blue-100 text-blue-700" },
-	paused: { label: "Paused", className: "bg-amber-100 text-amber-700" },
-	completed: { label: "Completed", className: "bg-green-100 text-green-700" },
-	archived: { label: "Archived", className: "bg-zinc-200 text-zinc-500" },
+	planned: { label: "Planned", className: "bg-stone-400/15 text-stone-300" },
+	inProgress: { label: "In progress", className: "bg-violet-400/15 text-violet-200" },
+	paused: { label: "Paused", className: "bg-amber-400/15 text-amber-200" },
+	completed: { label: "Completed", className: "bg-emerald-400/15 text-emerald-200" },
+	archived: { label: "Archived", className: "bg-zinc-400/15 text-zinc-300" },
 };
 
 const PRIORITY_META = {
-	low: { label: "Low", className: "bg-gray-100 text-gray-600" },
-	medium: { label: "Medium", className: "bg-amber-100 text-amber-700" },
-	high: { label: "High", className: "bg-red-100 text-red-700" },
+	low: { label: "Low", className: "bg-stone-400/15 text-stone-300" },
+	medium: { label: "Medium", className: "bg-amber-400/15 text-amber-200" },
+	high: { label: "High", className: "bg-rose-400/15 text-rose-200" },
 };
 
 const INVENTORY_TYPES = ["consumable", "tool"];

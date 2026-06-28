@@ -6,7 +6,7 @@ const ProgressBar = ({ value, completed, total, showLabel = false }) => {
 		<div className="flex items-center gap-2">
 			<div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
 				<div
-					className="h-full rounded-full bg-green-500 transition-all"
+					className="h-full rounded-full bg-linear-to-r from-primary to-emerald-400/80 transition-all"
 					style={{ width: `${Math.min(100, Math.max(0, percent))}%` }}
 				/>
 			</div>

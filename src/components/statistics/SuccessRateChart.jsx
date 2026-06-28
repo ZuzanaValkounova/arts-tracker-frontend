@@ -16,9 +16,8 @@ const SuccessRateChart = ({ data }) => {
 						data={chartData}
 						startAngle={90}
 						endAngle={-270}>
-						{/* domain 0–100 makes the bar length represent the percentage */}
 						<PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
-						<RadialBar background dataKey="value" cornerRadius={8} fill="#22c55e" angleAxisId={0} />
+						<RadialBar background dataKey="value" cornerRadius={8} fill="#86b48f" angleAxisId={0} />
 					</RadialBarChart>
 				</ResponsiveContainer>
 				<div className="pointer-events-none absolute inset-0 flex items-center justify-center text-2xl font-bold">

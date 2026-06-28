@@ -55,9 +55,9 @@ const ProjectKanbanBoard = ({
 							key={status}
 							className={cn(
 								"flex min-w-60 flex-1 flex-col rounded-lg transition-opacity",
-								isDone && "bg-green-50/70 ring-1 ring-green-200",
+								isDone && "bg-emerald-500/10 ring-1 ring-emerald-500/25",
 								isArchived &&
-									"border border-dashed border-zinc-300 bg-zinc-100/60 opacity-60 hover:opacity-100",
+									"border border-dashed border-border bg-muted/30 opacity-60 hover:opacity-100",
 								!isDone && !isArchived && "bg-muted/50",
 							)}>
 							<div className="flex items-center justify-between px-3 py-2">
