@@ -157,6 +157,7 @@ const InventoryList = ({ items, onEdit, onDelete }) => {
 		[onEdit, onDelete],
 	);
 
+	// eslint-disable-next-line react-hooks/incompatible-library
 	const table = useReactTable({
 		data: items,
 		columns,

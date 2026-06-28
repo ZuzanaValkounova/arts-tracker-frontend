@@ -1,12 +1,15 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, CalendarClock } from "lucide-react";
 
 import { StatusBadge } from "../ui/shared/StatusBadge";
 import { DifficultyRating } from "../ui/shared/DifficultyRating";
 import { ProgressBar } from "../ui/shared/ProgressBar";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const ProjectCard = ({ project, progress, onOpen, onEdit, onDelete }) => {
 	const accent = project.color ?? null;
+	const overdue =
+		project.deadline && project.status !== "completed" && new Date(project.deadline) < new Date();
 	const stop = (fn) => (e) => {
 		e.stopPropagation();
 		fn();
@@ -72,6 +75,16 @@ const ProjectCard = ({ project, progress, onOpen, onEdit, onDelete }) => {
 					<h2 className="truncate font-semibold">{project.name}</h2>
 					{project.difficulty ? <DifficultyRating value={project.difficulty} readOnly /> : null}
 				</div>
+				{project.deadline && (
+					<div
+						className={cn(
+							"flex items-center gap-1 text-xs",
+							overdue ? "font-medium text-destructive" : "text-muted-foreground",
+						)}>
+						<CalendarClock className="size-3.5" />
+						<span>Due {new Date(project.deadline).toLocaleDateString()}</span>
+					</div>
+				)}
 				{progress != null ? (
 					<ProgressBar value={progress} showLabel />
 				) : project.taskStats ? (

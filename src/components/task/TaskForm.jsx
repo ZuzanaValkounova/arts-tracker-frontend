@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 import { TASK_STATUSES, PRIORITIES, STATUS_META, PRIORITY_META } from "../../utils/constants";
 import { DateField } from "../ui/shared/DateField";
@@ -21,6 +22,8 @@ const taskSchema = z.object({
 	status: z.enum(TASK_STATUSES).default("planned"),
 	priority: z.enum(PRIORITIES).default("low"),
 	deadline: z.string().nullable().optional(),
+	startedAt: z.string().nullable().optional(),
+	completedAt: z.string().nullable().optional(),
 });
 
 const TaskForm = ({
@@ -38,9 +41,15 @@ const TaskForm = ({
 		status: initialValues?.status ?? "planned",
 		priority: initialValues?.priority ?? "low",
 		deadline: initialValues?.deadline ?? null,
+		startedAt: initialValues?.startedAt ?? null,
+		completedAt: initialValues?.completedAt ?? null,
 	});
 	const [errors, setErrors] = useState({});
+	const [showAdvanced, setShowAdvanced] = useState(
+		Boolean(initialValues?.description || initialValues?.startedAt || initialValues?.completedAt),
+	);
 
+	const today = new Date().toISOString();
 	const set = (patch) => setValues((prev) => ({ ...prev, ...patch }));
 
 	const handleSubmit = (e) => {
@@ -55,6 +64,15 @@ const TaskForm = ({
 		const payload = { ...result.data, projectId };
 		if (!payload.deadline) delete payload.deadline;
 		if (!payload.description) delete payload.description;
+		// keep timestamps consistent with status
+		if (payload.status === "planned") {
+			delete payload.startedAt;
+			delete payload.completedAt;
+		} else if (payload.status !== "completed") {
+			delete payload.completedAt;
+		}
+		if (!payload.startedAt) delete payload.startedAt;
+		if (!payload.completedAt) delete payload.completedAt;
 		if (parentTaskId) payload.parentTaskId = parentTaskId;
 
 		onSubmit(payload);
@@ -75,15 +93,6 @@ const TaskForm = ({
 				</Label>
 				<Input value={values.name} onChange={(e) => set({ name: e.target.value })} />
 				{errors.name && <span className="text-xs text-destructive">{errors.name}</span>}
-			</div>
-
-			<div className="flex flex-col gap-1.5">
-				<Label>Description</Label>
-				<Textarea
-					value={values.description}
-					onChange={(e) => set({ description: e.target.value })}
-					rows={3}
-				/>
 			</div>
 
 			<div className="flex flex-wrap items-end gap-4">
@@ -123,6 +132,50 @@ const TaskForm = ({
 					onChange={(date) => set({ deadline: date })}
 				/>
 			</div>
+
+			<button
+				type="button"
+				onClick={() => setShowAdvanced((open) => !open)}
+				className="flex w-fit items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground">
+				{showAdvanced ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
+				More options
+			</button>
+
+			{showAdvanced && (
+				<div className="flex flex-col gap-4 rounded-lg border border-dashed p-3">
+					<div className="flex flex-col gap-1.5">
+						<Label>Description</Label>
+						<Textarea
+							value={values.description}
+							onChange={(e) => set({ description: e.target.value })}
+							rows={3}
+						/>
+					</div>
+					<div className="flex flex-wrap items-end gap-4">
+						<DateField
+							label="Started at"
+							value={values.startedAt}
+							max={today}
+							disabled={values.status === "planned"}
+							title={
+								values.status === "planned" ? "Available once the task is in progress" : undefined
+							}
+							onChange={(date) => set({ startedAt: date })}
+						/>
+						<DateField
+							label="Completed at"
+							value={values.completedAt}
+							min={values.startedAt ?? undefined}
+							max={today}
+							disabled={values.status !== "completed"}
+							title={
+								values.status !== "completed" ? "Available once the task is completed" : undefined
+							}
+							onChange={(date) => set({ completedAt: date })}
+						/>
+					</div>
+				</div>
+			)}
 
 			<div className="flex justify-end gap-2 pt-2">
 				<Button type="button" variant="outline" onClick={onCancel}>

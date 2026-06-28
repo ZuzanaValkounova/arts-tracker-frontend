@@ -51,10 +51,11 @@ const InventoryFilters = ({ filters, onChange, categories = [] }) => {
 				</SelectContent>
 			</Select>
 			<CategoryPicker
-				value={filters.categoryId ?? null}
+				value={filters.categoryId || null}
 				options={categories}
 				onChange={(id) => set({ categoryId: id })}
 				emptyLabel="All categories"
+				allowUncategorized
 			/>
 		</div>
 	);

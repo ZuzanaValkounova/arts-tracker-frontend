@@ -9,6 +9,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { ProjectsGrid } from "../components/project/ProjectsGrid";
 import { ProjectKanbanBoard } from "../components/project/ProjectKanbanBoard";
 import { ProjectForm } from "../components/project/ProjectForm";
+import { ReflectionDialog } from "../components/project/ReflectionDialog";
 import { ViewSwitcher } from "../components/ui/shared/ViewSwitcher";
 import { CategoryPicker, UNCATEGORIZED } from "../components/ui/shared/CategoryPicker";
 import { TagChip } from "../components/ui/shared/TagChip";
@@ -28,7 +29,13 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-import { getProjects, createProject, updateProject, deleteProject } from "../api/projects";
+import {
+	getProjects,
+	createProject,
+	updateProject,
+	deleteProject,
+	upsertProjectReflection,
+} from "../api/projects";
 import { getCategories } from "../api/categories";
 import { getTags, createTag } from "../api/tags";
 import { useAuth } from "../contexts/useAuth";
@@ -76,6 +83,7 @@ const DashboardPage = () => {
 	const [formOpen, setFormOpen] = useState(false);
 	const [editedProject, setEditedProject] = useState(null);
 	const [projectToDelete, setProjectToDelete] = useState(null);
+	const [reflectionProject, setReflectionProject] = useState(null);
 
 	const projectsQuery = useQuery({ queryKey: ["projects"], queryFn: () => getProjects(token) });
 	const categoriesQuery = useQuery({
@@ -89,10 +97,27 @@ const DashboardPage = () => {
 			editedProject
 				? updateProject(token, editedProject._id, values)
 				: createProject(token, values),
-		onSuccess: () => {
+		onSuccess: (result) => {
 			toast.success(editedProject ? "Project updated" : "Project created");
 			queryClient.invalidateQueries({ queryKey: ["projects"] });
 			closeForm();
+			// project just transitioned to completed without a reflection → offer one
+			if (result?.triggerReflection && result?.project) setReflectionProject(result.project);
+		},
+	});
+	// upsert reflection + (optionally) the difficulty update
+	const reflectionMutation = useMutation({
+		mutationFn: async ({ difficulty, ...reflection }) => {
+			const targetId = reflectionProject._id;
+			await upsertProjectReflection(token, targetId, reflection);
+			if (difficulty && difficulty !== reflectionProject?.difficulty) {
+				await updateProject(token, targetId, { difficulty });
+			}
+		},
+		onSuccess: () => {
+			toast.success("Reflection saved");
+			queryClient.invalidateQueries({ queryKey: ["projects"] });
+			setReflectionProject(null);
 		},
 	});
 	const deleteMutation = useMutation({
@@ -125,6 +150,10 @@ const DashboardPage = () => {
 		},
 		onError: (_err, _vars, ctx) => {
 			if (ctx?.previous) queryClient.setQueryData(["projects"], ctx.previous);
+		},
+		onSuccess: (result) => {
+			// dragging a card to "Completed" without a reflection → offer one
+			if (result?.triggerReflection && result?.project) setReflectionProject(result.project);
 		},
 		onSettled: () => queryClient.invalidateQueries({ queryKey: ["projects"] }),
 	});
@@ -241,13 +270,20 @@ const DashboardPage = () => {
 							allowUncategorized
 						/>
 						<div className="ml-auto flex items-center gap-2">
-							<span className="text-xs text-muted-foreground">Sort</span>
+							<span
+								className={cn("text-xs text-muted-foreground", view === "kanban" && "opacity-50")}>
+								Sort
+							</span>
 							<Select
 								value={sort}
+								disabled={view === "kanban"}
 								onValueChange={(next) =>
 									updateParams({ sort: next === DEFAULT_SORT ? null : next })
 								}>
-								<SelectTrigger size="sm" className="w-40">
+								<SelectTrigger
+									size="sm"
+									className="w-40"
+									title={view === "kanban" ? "Sorting applies to grid view" : undefined}>
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
@@ -342,6 +378,11 @@ const DashboardPage = () => {
 					}
 					onMove={(projectId, status) => statusMutation.mutateAsync({ projectId, status })}
 					onOpen={(projectId) => navigate(`/projects/${projectId}`)}
+					onEdit={(project) => {
+						setEditedProject(project);
+						setFormOpen(true);
+					}}
+					onDelete={setProjectToDelete}
 				/>
 			) : visibleProjects.length === 0 ? (
 				<EmptyState message="No projects match the current filters." />
@@ -373,6 +414,15 @@ const DashboardPage = () => {
 					onCancel={closeForm}
 				/>
 			</FormDialog>
+
+			<ReflectionDialog
+				key={reflectionProject?._id}
+				open={Boolean(reflectionProject)}
+				initialValues={reflectionProject ? { difficulty: reflectionProject.difficulty } : undefined}
+				loading={reflectionMutation.isPending}
+				onSubmit={reflectionMutation.mutate}
+				onClose={() => setReflectionProject(null)}
+			/>
 
 			<ConfirmDialog
 				open={Boolean(projectToDelete)}

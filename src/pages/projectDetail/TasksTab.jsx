@@ -155,7 +155,7 @@ const TasksTab = ({ project, onCascade }) => {
 				<TaskKanbanBoard
 					tasks={visibleTasks.filter((task) => !task.parentTaskId)}
 					onMove={(taskId, values) => updateMutation.mutateAsync({ taskId, values })}
-					onRenumber={() => renumberMutation.mutate(null)}
+					onRenumber={() => renumberMutation.mutateAsync(null)}
 					onOpen={setOpenTaskId}
 				/>
 			) : (
@@ -171,6 +171,8 @@ const TasksTab = ({ project, onCascade }) => {
 						setParentTask(task);
 						setFormOpen(true);
 					}}
+					onReorder={(taskId, values) => updateMutation.mutateAsync({ taskId, values })}
+					onRenumber={(parentTaskId) => renumberMutation.mutateAsync(parentTaskId)}
 				/>
 			)}
 

@@ -40,7 +40,7 @@ const InventoryForm = ({ initialValues, categories = [], onSubmit, onCancel, loa
 		status: initialValues?.status ?? "wishlist",
 		quantity: initialValues?.quantity ?? 1,
 		price: initialValues?.price ?? null,
-		currency: initialValues?.currency ?? "CZK",
+		currency: "CZK", // system is single-currency (CZK) for now
 		source: initialValues?.source ?? "",
 		categoryIds: initialValues?.categoryIds ?? [],
 	});
@@ -145,12 +145,12 @@ const InventoryForm = ({ initialValues, categories = [], onSubmit, onCancel, loa
 				<div className="flex flex-col gap-1.5">
 					<Label>Currency</Label>
 					<Input
-						maxLength={3}
-						value={values.currency}
-						onChange={(e) => set({ currency: e.target.value.toUpperCase() })}
+						value="CZK"
+						disabled
+						readOnly
+						title="Only one currency supported for now"
 						className="w-16 uppercase"
 					/>
-					{errors.currency && <span className="text-xs text-destructive">{errors.currency}</span>}
 				</div>
 			</div>
 

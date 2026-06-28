@@ -152,26 +152,34 @@ const MoodboardTab = ({ project }) => {
 
 			<FormDialog
 				open={Boolean(pendingImage)}
-				onClose={() => setPendingImage(null)}
+				onClose={() => {
+					// don't let the dialog close mid-upload
+					if (!addElementMutation.isPending) setPendingImage(null);
+				}}
 				title="Add image"
 				className="sm:max-w-md">
 				<ImageUpload
 					value={null}
+					uploading={addElementMutation.isPending}
 					onSelect={(file) => {
 						const base = pendingImage;
-						setPendingImage(null);
 						// size the element to the image's real proportions before saving
 						const objectUrl = URL.createObjectURL(file);
 						getNaturalImageSize(objectUrl).then((natural) => {
 							URL.revokeObjectURL(objectUrl);
-							addElementMutation.mutate({ ...base, imageFile: file, ...fitImageSize(natural) });
+							addElementMutation.mutate(
+								{ ...base, imageFile: file, ...fitImageSize(natural) },
+								{ onSettled: () => setPendingImage(null) },
+							);
 						});
 					}}
 					onSelectUrl={(url) => {
 						const base = pendingImage;
-						setPendingImage(null);
 						getNaturalImageSize(url).then((natural) => {
-							addElementMutation.mutate({ ...base, imageUrl: url, ...fitImageSize(natural) });
+							addElementMutation.mutate(
+								{ ...base, imageUrl: url, ...fitImageSize(natural) },
+								{ onSettled: () => setPendingImage(null) },
+							);
 						});
 					}}
 				/>

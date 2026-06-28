@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { PartyPopper } from "lucide-react";
+
 import { FormDialog } from "../ui/shared/FormDialog";
 import { DifficultyRating } from "../ui/shared/DifficultyRating";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { fireConfetti } from "@/lib/confetti";
 
 const ReflectionDialog = ({ open, initialValues, onSubmit, onClose, loading }) => {
 	const [values, setValues] = useState({
@@ -12,6 +15,11 @@ const ReflectionDialog = ({ open, initialValues, onSubmit, onClose, loading }) =
 		whatToImprove: initialValues?.whatToImprove ?? "",
 		difficulty: initialValues?.difficulty ?? null,
 	});
+
+	// celebrate when the dialog opens
+	useEffect(() => {
+		if (open) fireConfetti();
+	}, [open]);
 
 	const set = (patch) => setValues((prev) => ({ ...prev, ...patch }));
 
@@ -27,8 +35,14 @@ const ReflectionDialog = ({ open, initialValues, onSubmit, onClose, loading }) =
 	];
 
 	return (
-		<FormDialog open={open} onClose={onClose} title="Project reflection">
+		<FormDialog open={open} onClose={onClose} title="Project complete! 🎉">
 			<form onSubmit={handleSubmit} className="flex flex-col gap-3">
+				<div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50/70 p-3 text-sm">
+					<PartyPopper className="size-5 shrink-0 text-green-600" />
+					<p className="text-green-800">
+						Nice work finishing this one! Take a moment to capture what you've learned and reflect.
+					</p>
+				</div>
 				{fields.map(({ key, label }) => (
 					<div key={key} className="flex flex-col gap-1.5">
 						<Label>{label}</Label>

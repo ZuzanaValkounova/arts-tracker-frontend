@@ -6,7 +6,14 @@ import { ProjectCard } from "./ProjectCard";
 import { PROJECT_STATUSES, STATUS_META } from "../../utils/constants";
 import { cn } from "@/lib/utils";
 
-const ProjectKanbanBoard = ({ projects, onMove, onOpen, statuses = PROJECT_STATUSES }) => {
+const ProjectKanbanBoard = ({
+	projects,
+	onMove,
+	onOpen,
+	onEdit,
+	onDelete,
+	statuses = PROJECT_STATUSES,
+}) => {
 	const [tempProjects, setTempProjects] = useState(null);
 
 	const displayProjects = tempProjects ?? projects;
@@ -86,7 +93,12 @@ const ProjectKanbanBoard = ({ projects, onMove, onOpen, statuses = PROJECT_STATU
 															opacity: snap.isDragging ? 0.85 : isArchived ? 0.85 : 1,
 															filter: isArchived ? "grayscale(0.4)" : undefined,
 														}}>
-														<ProjectCard project={project} onOpen={() => onOpen(project._id)} />
+														<ProjectCard
+															project={project}
+															onOpen={() => onOpen(project._id)}
+															onEdit={onEdit ? () => onEdit(project) : undefined}
+															onDelete={onDelete ? () => onDelete(project) : undefined}
+														/>
 													</div>
 												)}
 											</Draggable>

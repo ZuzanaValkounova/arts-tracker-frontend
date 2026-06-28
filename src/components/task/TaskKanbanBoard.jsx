@@ -3,7 +3,7 @@ import { DragDropContext } from "@hello-pangea/dnd";
 
 import { KanbanColumn } from "./KanbanColumn";
 import { TASK_STATUSES } from "../../utils/constants";
-import { midpointOrder } from "../../utils/tasks";
+import { midpointOrder, STEP } from "../../utils/tasks";
 
 // group top-level tasks into ordered columns by status: { planned: [task…], inProgress: [task…], … }
 const buildColumns = (tasks) => {
@@ -36,33 +36,49 @@ const TaskKanbanBoard = ({ tasks, onMove, onRenumber, onOpen }) => {
 			working[destination.droppableId].splice(destination.index, 0, moved);
 
 			const list = working[destination.droppableId];
-			const order = midpointOrder(
-				list[destination.index - 1]?.order ?? null,
-				list[destination.index + 1]?.order ?? null,
-			);
+			const before = list[destination.index - 1];
+			const after = list[destination.index + 1];
 			const statusChanged = source.droppableId !== destination.droppableId;
+			const order = midpointOrder(before?.order ?? null, after?.order ?? null);
 
-			// build the optimistic task list and show it immediately before the mutation fires
-			const reordered = displayTasks.map((task) => {
-				if (task._id !== draggableId) return task;
-				return {
-					...task,
-					...(statusChanged ? { status: destination.droppableId } : {}),
-					...(order !== null ? { order } : {}),
-				};
-			});
-			setTempTasks(reordered);
+			// optimistic display order
+			const displayOrder =
+				order ??
+				(before && after
+					? (before.order + after.order) / 2
+					: before
+						? before.order + 0.5
+						: after
+							? after.order - 0.5
+							: STEP);
+			setTempTasks(
+				displayTasks.map((task) =>
+					task._id === draggableId
+						? {
+								...task,
+								...(statusChanged ? { status: destination.droppableId } : {}),
+								order: displayOrder,
+							}
+						: task,
+				),
+			);
 
 			try {
-				if (order === null) {
-					if (statusChanged) await onMove(draggableId, { status: destination.droppableId });
-					onRenumber();
-				} else {
-					await onMove(
-						draggableId,
-						statusChanged ? { status: destination.droppableId, order } : { order },
-					);
+				let finalOrder = order;
+				if (finalOrder === null) {
+					// gap exhausted: renumber all top-level tasks then place the card between its neighbours' predicted orders
+					await onRenumber();
+					const sorted = [...displayTasks].sort((a, b) => a.order - b.order);
+					const predicted = (task) =>
+						task ? (sorted.findIndex((t) => t._id === task._id) + 1) * STEP : null;
+					finalOrder = midpointOrder(predicted(before), predicted(after));
 				}
+				await onMove(
+					draggableId,
+					statusChanged
+						? { status: destination.droppableId, order: finalOrder }
+						: { order: finalOrder },
+				);
 			} finally {
 				setTempTasks(null);
 			}
