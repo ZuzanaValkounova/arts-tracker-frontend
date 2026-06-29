@@ -10,45 +10,58 @@ import {
 } from "recharts";
 
 import { formatPeriodLabel } from "../../utils/statistics";
+import { ChartEmpty, axisTick, gridStroke, lineTooltipProps } from "./chartStyle";
 
 // data: [{ periodStart, created, completed }]
 const ActivityChart = ({ title, data, granularity }) => {
 	const hasData = data.some((row) => row.created > 0 || row.completed > 0);
 	const formattedLabel = (value) => formatPeriodLabel(value, granularity);
+	// unique gradient ids per instance (projects vs tasks share this component)
+	const uid = title.replace(/\W/g, "");
 
 	return (
 		<div className="rounded-lg border bg-card p-4">
 			<h3 className="mb-3 text-sm font-semibold">{title}</h3>
 			{!hasData ? (
-				<p className="text-sm text-muted-foreground">No activity in this period</p>
+				<ChartEmpty message="No activity in this period." />
 			) : (
 				<ResponsiveContainer width="100%" height={240}>
 					<AreaChart data={data} margin={{ top: 8, right: 8 }}>
-						<CartesianGrid strokeDasharray="3 3" vertical={false} />
+						<defs>
+							<linearGradient id={`created-${uid}`} x1="0" y1="0" x2="0" y2="1">
+								<stop offset="0%" stopColor="#a899db" stopOpacity={0.45} />
+								<stop offset="100%" stopColor="#a899db" stopOpacity={0.02} />
+							</linearGradient>
+							<linearGradient id={`completed-${uid}`} x1="0" y1="0" x2="0" y2="1">
+								<stop offset="0%" stopColor="#86b48f" stopOpacity={0.5} />
+								<stop offset="100%" stopColor="#86b48f" stopOpacity={0.02} />
+							</linearGradient>
+						</defs>
+						<CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridStroke} />
 						<XAxis
 							dataKey="periodStart"
 							tickFormatter={formattedLabel}
-							tick={{ fontSize: 11 }}
+							tick={axisTick}
 							minTickGap={24}
 						/>
-						<YAxis allowDecimals={false} width={28} />
-						<Tooltip labelFormatter={formattedLabel} />
-						<Legend />
+						<YAxis allowDecimals={false} width={28} tick={axisTick} />
+						<Tooltip {...lineTooltipProps} labelFormatter={formattedLabel} />
+						<Legend iconType="plainline" wrapperStyle={{ fontSize: 12 }} />
 						<Area
 							type="monotone"
 							dataKey="created"
 							name="Created"
 							stroke="#a899db"
-							fill="#a899db"
-							fillOpacity={0.15}
+							strokeWidth={2}
+							fill={`url(#created-${uid})`}
 						/>
 						<Area
 							type="monotone"
 							dataKey="completed"
 							name="Completed"
 							stroke="#86b48f"
-							fill="#86b48f"
-							fillOpacity={0.25}
+							strokeWidth={2}
+							fill={`url(#completed-${uid})`}
 						/>
 					</AreaChart>
 				</ResponsiveContainer>

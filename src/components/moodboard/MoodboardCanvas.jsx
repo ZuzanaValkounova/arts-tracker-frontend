@@ -53,6 +53,9 @@ const MoodboardCanvas = ({
 	const [containerRef, { width, height }] = useElementSize();
 	const [selected, setSelected] = useState(null); // { id, node }
 	const [editing, setEditing] = useState(null); // text-content editing overlay
+	// the board is one fixed space; the stage a window into it that the user pans around
+	const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
+	const isPanned = stagePos.x !== 0 || stagePos.y !== 0;
 
 	const ready = width > 0 && height > 0;
 
@@ -155,7 +158,9 @@ const MoodboardCanvas = ({
 	return (
 		<div
 			ref={containerRef}
-			className="relative h-full w-full overflow-hidden rounded-lg border bg-card"
+			className={`relative h-full w-full overflow-hidden rounded-lg border bg-card ${
+				activeTool === "select" ? "cursor-grab active:cursor-grabbing" : ""
+			}`}
 			style={DOT_GRID}>
 			{/* floating controls for selected element: style, color, z-order, delete */}
 			{selectedElement && (
@@ -234,8 +239,33 @@ const MoodboardCanvas = ({
 				</div>
 			)}
 
+			{/* recenter the view after panning away from the content */}
+			{isPanned && (
+				<Button
+					type="button"
+					variant="secondary"
+					size="sm"
+					className="absolute right-2 bottom-2 z-10 shadow-md"
+					onClick={() => setStagePos({ x: 0, y: 0 })}>
+					Reset view
+				</Button>
+			)}
+
 			{ready && (
-				<Stage width={width} height={height} onClick={handleStageClick} onTap={handleStageClick}>
+				<Stage
+					width={width}
+					height={height}
+					x={stagePos.x}
+					y={stagePos.y}
+					draggable={activeTool === "select"}
+					onClick={handleStageClick}
+					onTap={handleStageClick}
+					onDragEnd={(e) => {
+						// only the stage panning should update the view
+						if (e.target === e.target.getStage()) {
+							setStagePos({ x: e.target.x(), y: e.target.y() });
+						}
+					}}>
 					<Layer>
 						{sortedElements.map((element) => {
 							const ElementComponent = ELEMENT_COMPONENTS[element.type];
@@ -285,8 +315,8 @@ const MoodboardCanvas = ({
 					}}
 					style={{
 						position: "absolute",
-						left: editing.x,
-						top: editing.y,
+						left: editing.x + stagePos.x,
+						top: editing.y + stagePos.y,
 						width: editing.width,
 						fontSize: editing.fontSize,
 						fontFamily: editing.fontFamily,

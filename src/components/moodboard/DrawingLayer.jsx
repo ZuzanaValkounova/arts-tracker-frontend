@@ -16,7 +16,9 @@ const DrawingLayer = ({ tool, color = DRAWING_INK, onDrawEnd }) => {
 		const stage = layerRef.current?.getStage();
 		if (!stage || tool !== "draw") return;
 
-		const getPos = () => stage.getPointerPosition();
+		// use the layer-relative position so strokes land in board coordinates even after stage panning
+		const getPos = () =>
+			layerRef.current?.getRelativePointerPosition() ?? stage.getPointerPosition();
 
 		const handleDown = () => {
 			const pointer = getPos();
