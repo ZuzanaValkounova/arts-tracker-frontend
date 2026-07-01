@@ -7,11 +7,11 @@ const formatPeriodLabel = (periodStart, granularity) => {
 	return date.toLocaleDateString(undefined, { ...options, timeZone: "UTC" });
 };
 
-// created + completed series into chart rows
-const mergeActivitySeries = (created = [], completed = []) =>
-	created.map((point, index) => ({
+// started + completed into chart rows
+const mergeActivitySeries = (started = [], completed = []) =>
+	started.map((point, index) => ({
 		periodStart: point.periodStart,
-		created: point.count,
+		started: point.count,
 		completed: completed[index]?.count ?? 0,
 	}));
 

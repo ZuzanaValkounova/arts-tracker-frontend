@@ -6,22 +6,42 @@ import { DifficultyChart } from "./DifficultyChart";
 import { DurationByCategoryChart } from "./DurationByCategoryChart";
 import { ActivityChart } from "./ActivityChart";
 import { mergeActivitySeries } from "../../utils/statistics";
+import { cn } from "@/lib/utils";
 
-// data: { projects, tasks, timeline }
-const StatisticsDashboard = ({ data }) => {
+// note about date scope
+const SectionHeader = ({ title, scope, hint }) => {
+	const period = scope === "period";
+	return (
+		<div className="mt-1 flex items-baseline gap-2">
+			<span
+				className={cn(
+					"size-2 shrink-0 rounded-full",
+					period ? "bg-primary" : "bg-muted-foreground/50",
+				)}
+			/>
+			<h2 className="text-sm font-semibold text-foreground">{title}</h2>
+			{hint && <span className="text-xs text-muted-foreground">· {hint}</span>}
+		</div>
+	);
+};
+
+// data: { projects, tasks, timeline }; periodFilters: date-range controls element
+const StatisticsDashboard = ({ data, periodFilters }) => {
 	const timeline = data.timeline;
 	const granularity = timeline?.granularity ?? "week";
 
 	const projectRows = timeline
-		? mergeActivitySeries(timeline.projects?.created, timeline.projects?.completed)
+		? mergeActivitySeries(timeline.projects?.started, timeline.projects?.completed)
 		: [];
 	const taskRows = timeline
-		? mergeActivitySeries(timeline.tasks?.created, timeline.tasks?.completed)
+		? mergeActivitySeries(timeline.tasks?.started, timeline.tasks?.completed)
 		: [];
 
 	return (
 		<div className="flex flex-col gap-4">
-			<SummaryCards stats={data} />
+			{/* ALL-TIME: snapshots of the whole portfolio, ignore the date range */}
+			<SectionHeader title="All-time" scope="all" hint="ignores the date range" />
+			<SummaryCards stats={data} scope="all" />
 
 			<div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
 				<StatusPieChart data={data.projects?.byStatus ?? []} />
@@ -34,15 +54,19 @@ const StatisticsDashboard = ({ data }) => {
 				<DurationByCategoryChart data={data.projects?.durationByCategory ?? []} />
 			</div>
 
-			<h2 className="text-sm font-semibold text-foreground">Activity over time</h2>
+			{/* SELECTED PERIOD: everything below reacts to the date controls */}
+			<SectionHeader title="Selected period" scope="period" hint="set the date range below" />
+			{periodFilters}
+			<SummaryCards stats={data} scope="period" />
+
 			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 				<ActivityChart
-					title="Projects — created vs completed"
+					title="Projects — started vs completed"
 					data={projectRows}
 					granularity={granularity}
 				/>
 				<ActivityChart
-					title="Tasks — created vs completed"
+					title="Tasks — started vs completed"
 					data={taskRows}
 					granularity={granularity}
 				/>

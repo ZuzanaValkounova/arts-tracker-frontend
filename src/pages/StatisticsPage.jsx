@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
-import { StatsFilters } from "../components/statistics/StatsFilters";
+import { GlobalStatsFilters, PeriodStatsFilters } from "../components/statistics/StatsFilters";
 import { StatisticsDashboard } from "../components/statistics/StatisticsDashboard";
 import { LoadingState } from "../components/ui/shared/LoadingState";
 import { ErrorState } from "../components/ui/shared/ErrorState";
@@ -69,7 +69,7 @@ const StatisticsPage = () => {
 		<div className="flex flex-col gap-4">
 			<h1 className="text-xl font-bold">Statistics</h1>
 
-			<StatsFilters
+			<GlobalStatsFilters
 				filters={filters}
 				onChange={setFilters}
 				categories={categoriesQuery.data ?? []}
@@ -87,6 +87,13 @@ const StatisticsPage = () => {
 						tasks: taskStatsQuery.data,
 						timeline: timelineQuery.data,
 					}}
+					periodFilters={
+						<PeriodStatsFilters
+							filters={filters}
+							onChange={setFilters}
+							projects={projectsQuery.data ?? []}
+						/>
+					}
 				/>
 			)}
 		</div>

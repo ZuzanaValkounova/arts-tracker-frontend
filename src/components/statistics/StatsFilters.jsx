@@ -40,10 +40,63 @@ const presetRange = (id, projects) => {
 	return { from: iso(from), to };
 };
 
-// filters: { from, to, granularity, categoryId, projectId, taskType }
-const StatsFilters = ({ filters, onChange, categories = [], projects = [] }) => {
+// global filters apply to every chart
+// filters: { categoryId, projectId, taskType }
+const GlobalStatsFilters = ({ filters, onChange, categories = [], projects = [] }) => {
 	const set = (patch) => onChange({ ...filters, ...patch });
 
+	return (
+		<div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-3">
+			<div className="flex flex-col gap-1.5">
+				<Label>Category</Label>
+				<CategoryPicker
+					value={filters.categoryId ?? null}
+					options={categories}
+					onChange={(id) => set({ categoryId: id })}
+					emptyLabel="All categories"
+				/>
+			</div>
+			<div className="flex flex-col gap-1.5">
+				<Label>Project</Label>
+				<Select
+					value={filters.projectId || PROJECT_ALL}
+					onValueChange={(next) => set({ projectId: next === PROJECT_ALL ? null : next })}>
+					<SelectTrigger className="w-44">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value={PROJECT_ALL}>All projects</SelectItem>
+						{projects.map((project) => (
+							<SelectItem key={project._id} value={project._id}>
+								{project.name}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</div>
+			<div className="flex flex-col gap-1.5">
+				<Label>Tasks</Label>
+				<Select
+					value={filters.taskType || TASKS_ALL}
+					onValueChange={(next) => set({ taskType: next === TASKS_ALL ? null : next })}>
+					<SelectTrigger className="w-40">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value={TASKS_ALL}>All tasks</SelectItem>
+						<SelectItem value="topLevel">Top-level only</SelectItem>
+						<SelectItem value="subtasks">Subtasks only</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
+		</div>
+	);
+};
+
+// date-window controls only affect the "Selected period" section
+// filters: { from, to, granularity }
+const PeriodStatsFilters = ({ filters, onChange, projects = [] }) => {
+	const set = (patch) => onChange({ ...filters, ...patch });
 	const applyPreset = (id) => set({ ...presetRange(id, projects), granularity: "" });
 
 	const activePreset = PRESETS.find((preset) => {
@@ -52,86 +105,43 @@ const StatsFilters = ({ filters, onChange, categories = [], projects = [] }) => 
 	})?.id;
 
 	return (
-		<div className="flex flex-col gap-3 rounded-lg border bg-card p-3">
-			<div className="flex flex-wrap items-center gap-1.5">
-				<span className="mr-1 text-xs font-medium text-muted-foreground">Period:</span>
-				{PRESETS.map((preset) => (
-					<Button
-						key={preset.id}
-						type="button"
-						variant={activePreset === preset.id ? "default" : "outline"}
-						size="xs"
-						className="rounded-full"
-						onClick={() => applyPreset(preset.id)}>
-						{preset.label}
-					</Button>
-				))}
+		<div className="flex flex-wrap items-end gap-3 rounded-lg border bg-card p-3">
+			<div className="flex flex-col gap-1.5">
+				<Label>Period</Label>
+				<div className="flex flex-wrap items-center gap-1.5">
+					{PRESETS.map((preset) => (
+						<Button
+							key={preset.id}
+							type="button"
+							variant={activePreset === preset.id ? "default" : "outline"}
+							size="xs"
+							className="rounded-full"
+							onClick={() => applyPreset(preset.id)}>
+							{preset.label}
+						</Button>
+					))}
+				</div>
 			</div>
-
-			<div className="flex flex-wrap items-end gap-3">
-				<DateField label="From" value={filters.from} onChange={(date) => set({ from: date })} />
-				<DateField label="To" value={filters.to} onChange={(date) => set({ to: date })} />
-				<div className="flex flex-col gap-1.5">
-					<Label>Granularity</Label>
-					<Select
-						value={filters.granularity || GRANULARITY_AUTO}
-						onValueChange={(next) => set({ granularity: next === GRANULARITY_AUTO ? "" : next })}>
-						<SelectTrigger className="w-32">
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value={GRANULARITY_AUTO}>Auto</SelectItem>
-							<SelectItem value="day">Day</SelectItem>
-							<SelectItem value="week">Week</SelectItem>
-							<SelectItem value="month">Month</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
-				<div className="flex flex-col gap-1.5">
-					<Label>Category</Label>
-					<CategoryPicker
-						value={filters.categoryId ?? null}
-						options={categories}
-						onChange={(id) => set({ categoryId: id })}
-						emptyLabel="All categories"
-					/>
-				</div>
-				<div className="flex flex-col gap-1.5">
-					<Label>Project</Label>
-					<Select
-						value={filters.projectId || PROJECT_ALL}
-						onValueChange={(next) => set({ projectId: next === PROJECT_ALL ? null : next })}>
-						<SelectTrigger className="w-44">
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value={PROJECT_ALL}>All projects</SelectItem>
-							{projects.map((project) => (
-								<SelectItem key={project._id} value={project._id}>
-									{project.name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</div>
-				<div className="flex flex-col gap-1.5">
-					<Label>Tasks</Label>
-					<Select
-						value={filters.taskType || TASKS_ALL}
-						onValueChange={(next) => set({ taskType: next === TASKS_ALL ? null : next })}>
-						<SelectTrigger className="w-40">
-							<SelectValue />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value={TASKS_ALL}>All tasks</SelectItem>
-							<SelectItem value="topLevel">Top-level only</SelectItem>
-							<SelectItem value="subtasks">Subtasks only</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
+			<DateField label="From" value={filters.from} onChange={(date) => set({ from: date })} />
+			<DateField label="To" value={filters.to} onChange={(date) => set({ to: date })} />
+			<div className="flex flex-col gap-1.5">
+				<Label>Granularity</Label>
+				<Select
+					value={filters.granularity || GRANULARITY_AUTO}
+					onValueChange={(next) => set({ granularity: next === GRANULARITY_AUTO ? "" : next })}>
+					<SelectTrigger className="w-32">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value={GRANULARITY_AUTO}>Auto</SelectItem>
+						<SelectItem value="day">Day</SelectItem>
+						<SelectItem value="week">Week</SelectItem>
+						<SelectItem value="month">Month</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 		</div>
 	);
 };
 
-export { StatsFilters };
+export { GlobalStatsFilters, PeriodStatsFilters };

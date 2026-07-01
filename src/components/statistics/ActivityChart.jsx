@@ -12,9 +12,9 @@ import {
 import { formatPeriodLabel } from "../../utils/statistics";
 import { ChartEmpty, axisTick, gridStroke, lineTooltipProps } from "./chartStyle";
 
-// data: [{ periodStart, created, completed }]
+// data: [{ periodStart, started, completed }]
 const ActivityChart = ({ title, data, granularity }) => {
-	const hasData = data.some((row) => row.created > 0 || row.completed > 0);
+	const hasData = data.some((row) => row.started > 0 || row.completed > 0);
 	const formattedLabel = (value) => formatPeriodLabel(value, granularity);
 	// unique gradient ids per instance (projects vs tasks share this component)
 	const uid = title.replace(/\W/g, "");
@@ -28,7 +28,7 @@ const ActivityChart = ({ title, data, granularity }) => {
 				<ResponsiveContainer width="100%" height={240}>
 					<AreaChart data={data} margin={{ top: 8, right: 8 }}>
 						<defs>
-							<linearGradient id={`created-${uid}`} x1="0" y1="0" x2="0" y2="1">
+							<linearGradient id={`started-${uid}`} x1="0" y1="0" x2="0" y2="1">
 								<stop offset="0%" stopColor="#a899db" stopOpacity={0.45} />
 								<stop offset="100%" stopColor="#a899db" stopOpacity={0.02} />
 							</linearGradient>
@@ -49,11 +49,11 @@ const ActivityChart = ({ title, data, granularity }) => {
 						<Legend iconType="plainline" wrapperStyle={{ fontSize: 12 }} />
 						<Area
 							type="monotone"
-							dataKey="created"
-							name="Created"
+							dataKey="started"
+							name="Started"
 							stroke="#a899db"
 							strokeWidth={2}
-							fill={`url(#created-${uid})`}
+							fill={`url(#started-${uid})`}
 						/>
 						<Area
 							type="monotone"

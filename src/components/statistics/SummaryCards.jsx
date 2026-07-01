@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { FolderKanban, Target, Clock, CircleCheckBig, ListTodo, ListChecks } from "lucide-react";
+import {
+	FolderKanban,
+	Target,
+	Clock,
+	CircleCheckBig,
+	ListTodo,
+	ListChecks,
+	CirclePlay,
+} from "lucide-react";
 
 import { CHART_COLORS } from "./chartStyle";
 
@@ -44,57 +52,75 @@ const SummaryCard = ({ icon: Icon, color, label, value, suffix = "", hint }) => 
 };
 
 // stats: { projects: <GET /statistics/projects>, tasks: <GET /statistics/tasks> }
-const SummaryCards = ({ stats }) => {
+// scope: all → all-time, period → metrics tied to the selected date range
+const SummaryCards = ({ stats, scope }) => {
 	const cards = [
 		{
+			scope: "all",
 			icon: FolderKanban,
 			color: CHART_COLORS.lavender,
 			label: "Projects",
 			value: stats.projects?.total ?? 0,
-			hint: "all time",
 		},
 		{
+			scope: "all",
 			icon: Target,
 			color: CHART_COLORS.sage,
 			label: "Success rate",
 			value: Math.round(stats.projects?.successRate ?? 0),
 			suffix: " %",
-			hint: "completed / non-archived",
+			hint: "Completed / non-archived",
 		},
 		{
+			scope: "all",
 			icon: Clock,
 			color: CHART_COLORS.gold,
 			label: "Avg. project duration",
 			value: stats.projects?.averageDuration?.avgDurationDays ?? 0,
 			suffix: " d",
-			hint: "all time",
 		},
 		{
-			icon: CircleCheckBig,
-			color: CHART_COLORS.terracotta,
-			label: "Projects completed",
-			value: stats.projects?.completedInPeriod ?? 0,
-			hint: "in selected period",
-		},
-		{
+			scope: "all",
 			icon: ListTodo,
 			color: CHART_COLORS.blue,
 			label: "Tasks",
 			value: stats.tasks?.total ?? 0,
-			hint: "all time",
 		},
 		{
+			scope: "period",
+			icon: CirclePlay,
+			color: CHART_COLORS.lavender,
+			label: "Projects started",
+			value: stats.projects?.startedInPeriod ?? 0,
+		},
+		{
+			scope: "period",
+			icon: CircleCheckBig,
+			color: CHART_COLORS.terracotta,
+			label: "Projects completed",
+			value: stats.projects?.completedInPeriod ?? 0,
+		},
+		{
+			scope: "period",
+			icon: CirclePlay,
+			color: CHART_COLORS.blue,
+			label: "Tasks started",
+			value: stats.tasks?.startedCount ?? 0,
+		},
+		{
+			scope: "period",
 			icon: ListChecks,
 			color: CHART_COLORS.rose,
 			label: "Tasks completed",
 			value: stats.tasks?.completedCount ?? 0,
-			hint: "in selected period",
 		},
 	];
 
+	const shown = scope ? cards.filter((card) => card.scope === scope) : cards;
+
 	return (
-		<div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-			{cards.map((card) => (
+		<div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+			{shown.map((card) => (
 				<SummaryCard key={card.label} {...card} />
 			))}
 		</div>

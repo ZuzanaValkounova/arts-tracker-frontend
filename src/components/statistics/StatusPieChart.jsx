@@ -48,6 +48,7 @@ const StatusPieChart = ({ data }) => {
 							</Pie>
 							<Tooltip
 								{...pieTooltipProps}
+								wrapperStyle={{ zIndex: 50 }}
 								formatter={(value, name) => [
 									`${value} · ${Math.round((value / total) * 100)}%`,
 									name,

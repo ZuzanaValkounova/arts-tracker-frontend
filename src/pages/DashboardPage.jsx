@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Search, Archive } from "lucide-react";
+import { Search, Archive, Flame } from "lucide-react";
 
 import { Toggle } from "@/components/ui/toggle";
 
@@ -47,6 +47,7 @@ const SORT_OPTIONS = [
 	{ id: "createdAt", label: "Newest" },
 	{ id: "name", label: "Name (A–Z)" },
 	{ id: "deadline", label: "Deadline" },
+	{ id: "difficulty", label: "Difficulty" },
 ];
 const DEFAULT_SORT = "updatedAt";
 
@@ -60,7 +61,19 @@ const SORTERS = {
 		const bT = time(b.deadline, Infinity);
 		return aT < bT ? -1 : aT > bT ? 1 : 0;
 	},
+	// hardest first; unrated projects at bottom
+	difficulty: (a, b) => (b.difficulty ?? -1) - (a.difficulty ?? -1),
 };
+
+const DIFFICULTY_FILTERS = ["1", "2", "3", "4", "5", "unrated"];
+
+const DifficultyFlames = ({ level }) => (
+	<span className="inline-flex items-center gap-0.5">
+		{Array.from({ length: level }).map((_, index) => (
+			<Flame key={index} className="size-3.5 fill-orange-500/80 text-orange-500" />
+		))}
+	</span>
+);
 
 // Dashboard = the projects hub: search + filters, status summary, sorting (last modified first)
 const DashboardPage = () => {
@@ -71,6 +84,7 @@ const DashboardPage = () => {
 
 	const search = get("search");
 	const categoryId = get("category") || null;
+	const difficulty = get("difficulty"); // "" = all, "1".."5", "unrated"
 	const tagsParam = get("tags");
 	const statusParam = get("status"); // empty = all statuses
 	const sort = get("sort") || DEFAULT_SORT;
@@ -196,6 +210,13 @@ const DashboardPage = () => {
 			} else if (categoryId && project.categoryId !== categoryId) {
 				return false;
 			}
+			if (difficulty) {
+				if (difficulty === "unrated") {
+					if (project.difficulty != null) return false;
+				} else if (String(project.difficulty ?? "") !== difficulty) {
+					return false;
+				}
+			}
 			if (
 				selectedTagIds.length &&
 				!selectedTagIds.some((id) => (project.tagIds ?? []).includes(id))
@@ -228,6 +249,7 @@ const DashboardPage = () => {
 		tagsQuery.data,
 		search,
 		categoryId,
+		difficulty,
 		selectedTagIds,
 		selectedStatuses,
 		sort,
@@ -269,6 +291,28 @@ const DashboardPage = () => {
 							emptyLabel="All categories"
 							allowUncategorized
 						/>
+						<Select
+							value={difficulty || "all"}
+							onValueChange={(next) => updateParams({ difficulty: next === "all" ? null : next })}>
+							<SelectTrigger className="w-40" title="Filter by difficulty">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">All difficulties</SelectItem>
+								{DIFFICULTY_FILTERS.map((value) => (
+									<SelectItem
+										key={value}
+										value={value}
+										textValue={value === "unrated" ? "Unrated" : `Difficulty ${value}`}>
+										{value === "unrated" ? (
+											<span className="text-muted-foreground">Unrated</span>
+										) : (
+											<DifficultyFlames level={Number(value)} />
+										)}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 						<div className="ml-auto flex items-center gap-2">
 							<span
 								className={cn("text-xs text-muted-foreground", view === "kanban" && "opacity-50")}>
